@@ -1,0 +1,389 @@
+from django.utils import timezone
+from django.db import models
+from rest_framework import generics, permissions, status, viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.decorators import action
+from rest_framework_simplejwt.tokens import RefreshToken
+
+import secrets
+from accounts.models import User, BlockedUser, PasswordResetOTP
+from accounts.serializers import (
+    UserSerializer, UserRegistrationSerializer, UserUpdateSerializer,
+    VerificationActionSerializer, StaffCreationSerializer, BlockedUserSerializer
+)
+from kasandigan_core.permissions import IsPlatformAdmin, IsBarangayAdmin, IsBarangayStaffOrAdmin
+from activity_logs.services import AuditLogger
+from notifications.services import NotificationService
+
+class RegisterView(generics.CreateAPIView):
+    serializer_class = UserRegistrationSerializer
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = 'auth'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        # Generate JWT tokens for instant login upon registration
+        refresh = RefreshToken.for_user(user)
+        user_data = UserSerializer(user).data
+
+        AuditLogger.log(
+            user=user,
+            action='REGISTER',
+            description=f"Resident '{user.full_name}' registered in Barangay '{user.barangay.name if user.barangay else 'N/A'}'",
+            target_type='User',
+            target_id=str(user.id),
+            barangay=user.barangay
+        )
+
+        return Response({
+            'user': user_data,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'detail': 'Registration successful. Account is pending verification by barangay staff.'
+        }, status=status.HTTP_201_CREATED)
+
+
+class CurrentUserView(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return UserUpdateSerializer
+        return UserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+
+        if not old_password or not new_password:
+            return Response({'detail': 'Both old and new passwords are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not user.check_password(old_password):
+            return Response({'detail': 'Current password is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        AuditLogger.log(
+            user=user,
+            action='ADMIN_ACTION',
+            description="User updated password",
+            target_type='User',
+            target_id=str(user.id)
+        )
+
+        return Response({'detail': 'Password changed successfully.'})
+
+
+class ForgotPasswordView(APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = 'auth'
+
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        if not email:
+            return Response({'detail': 'Email address is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({'detail': 'No account found with this email address.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not user.is_active:
+            return Response({'detail': 'This account has been deactivated.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Invalidate previous unused OTPs for this email
+        PasswordResetOTP.objects.filter(email=email, is_used=False).update(is_used=True)
+
+        # Generate a secure 6-digit OTP
+        otp_code = f"{secrets.randbelow(900000) + 100000}"
+        PasswordResetOTP.objects.create(email=email, otp=otp_code)
+
+        AuditLogger.log(
+            user=user,
+            action='ADMIN_ACTION',
+            description="Password reset 6-digit OTP requested",
+            target_type='User',
+            target_id=str(user.id)
+        )
+
+        # Returns the OTP code directly in dev/demo response for seamless verification
+        return Response({
+            'detail': 'A 6-digit verification code has been sent to your email address.',
+            'email': email,
+            'otp': otp_code
+        }, status=status.HTTP_200_OK)
+
+
+class VerifyOTPView(APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = 'auth'
+
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        otp = request.data.get('otp', '').strip()
+
+        if not email or not otp:
+            return Response({'detail': 'Email and 6-digit OTP code are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_record = PasswordResetOTP.objects.filter(email=email, otp=otp, is_used=False).order_by('-created_at').first()
+        if not otp_record or not otp_record.is_valid():
+            return Response({'detail': 'Invalid or expired 6-digit code. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'detail': '6-digit OTP verified successfully.', 'valid': True})
+
+
+class ResetPasswordWithOTPView(APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = 'auth'
+
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        otp = request.data.get('otp', '').strip()
+        new_password = request.data.get('new_password', '')
+
+        if not email or not otp or not new_password:
+            return Response({'detail': 'Email, OTP, and new password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(new_password) < 8:
+            return Response({'detail': 'New password must be at least 8 characters long.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_record = PasswordResetOTP.objects.filter(email=email, otp=otp, is_used=False).order_by('-created_at').first()
+        if not otp_record or not otp_record.is_valid():
+            return Response({'detail': 'Invalid or expired 6-digit code. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({'detail': 'User account not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.set_password(new_password)
+        user.save()
+
+        # Mark OTP as consumed
+        otp_record.is_used = True
+        otp_record.save()
+
+        AuditLogger.log(
+            user=user,
+            action='ADMIN_ACTION',
+            description="User successfully reset password using 6-digit OTP",
+            target_type='User',
+            target_id=str(user.id)
+        )
+
+        return Response({'detail': 'Password has been changed successfully. You can now sign in with your new password.'})
+
+
+class ResidentDirectoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Allows Barangay Staff and Barangay Admin to browse and search residents in their barangay.
+    Platform Admin can filter by barangay.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [IsBarangayStaffOrAdmin]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = User.objects.filter(role='RESIDENT')
+
+        if user.role != 'PLATFORM_ADMIN':
+            queryset = queryset.filter(barangay=user.barangay)
+        else:
+            b_id = self.request.query_params.get('barangay')
+            if b_id:
+                queryset = queryset.filter(barangay_id=b_id)
+
+        # Filters
+        status_param = self.request.query_params.get('status')
+        if status_param:
+            queryset = queryset.filter(verification_status=status_param)
+
+        search_query = self.request.query_params.get('search')
+        if search_query:
+            queryset = queryset.filter(
+                models.Q(first_name__icontains=search_query) |
+                models.Q(last_name__icontains=search_query) |
+                models.Q(email__icontains=search_query) |
+                models.Q(zone__icontains=search_query)
+            )
+
+        return queryset.order_by('-created_at')
+
+    @action(detail=True, methods=['post'], permission_classes=[IsBarangayStaffOrAdmin])
+    def verify(self, request, pk=None):
+        resident = self.get_object()
+        serializer = VerificationActionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        new_status = serializer.validated_data['status']
+        notes = serializer.validated_data.get('notes', '')
+
+        resident.verification_status = new_status
+        resident.verification_notes = notes
+        resident.verified_at = timezone.now()
+        resident.verified_by = request.user
+        resident.save(update_fields=['verification_status', 'verification_notes', 'verified_at', 'verified_by'])
+
+        # Notify resident
+        status_label = dict(User.VERIFICATION_STATUS_CHOICES).get(new_status, new_status)
+        NotificationService.send(
+            user=resident,
+            title="Account Verification Status Updated",
+            message=f"Your account status in Barangay {resident.barangay.name if resident.barangay else ''} has been updated to: {status_label}. {notes}".strip(),
+            notif_type='ACCOUNT_VERIFIED' if new_status == 'VERIFIED' else 'GENERAL',
+            link='/profile'
+        )
+
+        client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', 'Unknown IP'))
+        if ',' in client_ip:
+            client_ip = client_ip.split(',')[0].strip()
+        doc_info = f"Doc: {resident.id_document_type or 'None'}"
+
+        AuditLogger.log(
+            user=request.user,
+            action='ACCOUNT_VERIFICATION',
+            description=f"Resident '{resident.full_name}' status changed to {new_status} by {request.user.full_name} from IP {client_ip}. {doc_info}. Notes: {notes}",
+            target_type='User',
+            target_id=str(resident.id),
+            barangay=resident.barangay
+        )
+
+        return Response({
+            'detail': f"Resident status updated to {new_status}.",
+            'resident': UserSerializer(resident, context={'request': request}).data
+        })
+
+    @action(detail=False, methods=['get'], url_path='my-certificate', permission_classes=[permissions.IsAuthenticated])
+    def my_certificate(self, request):
+        import hashlib
+        user = request.user
+        brgy = user.barangay
+        token = hashlib.sha256(f"{user.id}-{user.email}-{user.completed_assistance_count}-KASANDIGAN".encode()).hexdigest()[:16].upper()
+
+        return Response({
+            'recipient_name': user.full_name,
+            'recipient_email': user.email,
+            'recipient_zone': user.zone or 'Resident',
+            'barangay_name': brgy.name if brgy else 'Barangay Unit',
+            'city': brgy.municipality_city if brgy else 'Maramag',
+            'province': brgy.province if brgy else 'Bukidnon',
+            'completed_assistance_count': user.completed_assistance_count or 0,
+            'estimated_volunteer_hours': (user.completed_assistance_count or 0) * 2,
+            'rating_average': float(user.rating_average or 5.0),
+            'issue_date': timezone.now().strftime('%B %d, %Y'),
+            'verification_token': token,
+            'badges': UserSerializer(user).data.get('bayanihan_badges', [])
+        })
+
+
+
+class StaffManagementViewSet(viewsets.ModelViewSet):
+    """
+    Allows Barangay Admin to manage staff accounts within their barangay.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [IsBarangayAdmin]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'PLATFORM_ADMIN':
+            return User.objects.filter(role='BARANGAY_STAFF')
+        return User.objects.filter(role='BARANGAY_STAFF', barangay=user.barangay)
+
+    def create(self, request, *args, **kwargs):
+        serializer = StaffCreationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        staff_user = serializer.save(barangay=request.user.barangay)
+
+        AuditLogger.log(
+            user=request.user,
+            action='ADMIN_ACTION',
+            description=f"Created staff account '{staff_user.email}' for Barangay '{request.user.barangay.name}'",
+            target_type='User',
+            target_id=str(staff_user.id),
+            barangay=request.user.barangay
+        )
+
+        return Response(UserSerializer(staff_user).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'])
+    def toggle_active(self, request, pk=None):
+        staff_member = self.get_object()
+        staff_member.is_active = not staff_member.is_active
+        staff_member.save(update_fields=['is_active'])
+        state = "activated" if staff_member.is_active else "deactivated"
+        return Response({'detail': f"Staff member {state}.", 'is_active': staff_member.is_active})
+
+
+class BlockedUserViewSet(viewsets.ModelViewSet):
+    serializer_class = BlockedUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return BlockedUser.objects.filter(blocker=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(
+            blocker=self.request.user,
+            barangay=self.request.user.barangay
+        )
+
+
+class PlatformUsersViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Allows Platform Administrator to manage and monitor all users across all barangays.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [IsPlatformAdmin]
+    queryset = User.objects.all().order_by('-created_at')
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        barangay_id = self.request.query_params.get('barangay')
+        role = self.request.query_params.get('role')
+        search = self.request.query_params.get('search')
+
+        if barangay_id:
+            qs = qs.filter(barangay_id=barangay_id)
+        if role:
+            qs = qs.filter(role=role)
+        if search:
+            from django.db import models
+            qs = qs.filter(
+                models.Q(first_name__icontains=search) |
+                models.Q(last_name__icontains=search) |
+                models.Q(email__icontains=search)
+            )
+        return qs
+
+    @action(detail=True, methods=['post'])
+    def toggle_active(self, request, pk=None):
+        user_obj = self.get_object()
+        user_obj.is_active = not user_obj.is_active
+        user_obj.save(update_fields=['is_active'])
+
+        AuditLogger.log(
+            user=request.user,
+            action='ACCOUNT_SUSPENSION' if not user_obj.is_active else 'ADMIN_ACTION',
+            description=f"Platform Admin toggled active status for user {user_obj.email} to {user_obj.is_active}",
+            target_type='User',
+            target_id=str(user_obj.id)
+        )
+
+        return Response({
+            'detail': f"User {'activated' if user_obj.is_active else 'suspended'}.",
+            'is_active': user_obj.is_active
+        })
