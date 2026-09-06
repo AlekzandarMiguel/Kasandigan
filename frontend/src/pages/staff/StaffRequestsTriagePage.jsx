@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { HeartHandshake, Search, Plus, MapPin, Phone, User, Clock, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { HeartHandshake, Search, Plus, MapPin, Phone, User, Clock, AlertTriangle, CheckCircle, ArrowRight, ShieldAlert, ExternalLink, Wrench } from 'lucide-react';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
+import WalkInIntakeModal from '../../components/WalkInIntakeModal';
+import ReassignHelperModal from '../../components/ReassignHelperModal';
 
 export const StaffRequestsTriagePage = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusTab, setStatusTab] = useState('ALL');
+  const [intakeOpen, setIntakeOpen] = useState(false);
+  const [reassignModalTicket, setReassignModalTicket] = useState(null);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -64,7 +69,7 @@ export const StaffRequestsTriagePage = () => {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => window.open('/requests/create', '_blank')}
+            onClick={() => setIntakeOpen(true)}
             className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-md shadow-teal-600/20 transition-all"
           >
             <Plus className="w-4 h-4" /> Intake Walk-In Citizen Request
@@ -205,9 +210,62 @@ export const StaffRequestsTriagePage = () => {
                   )}
                 </div>
               </div>
+
+              {/* Triage Desk Actions */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="text-[11px] text-slate-400">
+                  {ticket.helpers_needed > 1 && (
+                    <span className="font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md mr-2">
+                      {ticket.helpers_needed} Helpers Needed
+                    </span>
+                  )}
+                  {ticket.linked_resource_name && (
+                    <span className="font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md">
+                      Tool Borrowed: {ticket.linked_resource_name}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {['PENDING', 'ACCEPTED', 'EN_ROUTE', 'IN_PROGRESS'].includes(ticket.status) && (
+                    <button
+                      onClick={() => setReassignModalTicket(ticket)}
+                      className="px-3 py-1.5 bg-slate-50 hover:bg-indigo-50 text-indigo-700 border border-slate-200 hover:border-indigo-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1"
+                    >
+                      <ShieldAlert className="w-3.5 h-3.5" /> Reassign
+                    </button>
+                  )}
+
+                  <Link
+                    to={`/requests/${ticket.id}`}
+                    className="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1"
+                  >
+                    <span>View Detail & Stepper</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Walk-In Intake Modal */}
+      <WalkInIntakeModal
+        isOpen={intakeOpen}
+        onClose={() => setIntakeOpen(false)}
+        onCreated={fetchRequests}
+      />
+
+      {/* Supervisor Helper Reassign Modal */}
+      {reassignModalTicket && (
+        <ReassignHelperModal
+          isOpen={Boolean(reassignModalTicket)}
+          onClose={() => setReassignModalTicket(null)}
+          requestId={reassignModalTicket.id}
+          currentHelperId={reassignModalTicket.assigned_helper}
+          onReassigned={fetchRequests}
+        />
       )}
     </div>
   );

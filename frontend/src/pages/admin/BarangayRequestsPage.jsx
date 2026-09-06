@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { HeartHandshake, Search, Filter, AlertCircle, Clock, CheckCircle2, XCircle, ArrowUpRight, ShieldAlert, User, MapPin } from 'lucide-react';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
+import ReassignHelperModal from '../../components/ReassignHelperModal';
 
 export const BarangayRequestsPage = () => {
   const [requests, setRequests] = useState([]);
@@ -11,6 +13,7 @@ export const BarangayRequestsPage = () => {
   const [urgencyFilter, setUrgencyFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [reassignModalReq, setReassignModalReq] = useState(null);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -218,14 +221,30 @@ export const BarangayRequestsPage = () => {
                       {new Date(req.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      {req.status !== 'COMPLETED' && req.status !== 'CANCELLED' && (
-                        <button
-                          onClick={() => handleAdminCancel(req.id)}
-                          className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition-colors"
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Link
+                          to={`/requests/${req.id}`}
+                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors"
                         >
-                          Cancel
-                        </button>
-                      )}
+                          View
+                        </Link>
+                        {['PENDING', 'ACCEPTED', 'EN_ROUTE', 'IN_PROGRESS'].includes(req.status) && (
+                          <button
+                            onClick={() => setReassignModalReq(req)}
+                            className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold transition-colors"
+                          >
+                            Reassign
+                          </button>
+                        )}
+                        {req.status !== 'COMPLETED' && req.status !== 'CANCELLED' && (
+                          <button
+                            onClick={() => handleAdminCancel(req.id)}
+                            className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -233,6 +252,17 @@ export const BarangayRequestsPage = () => {
             </table>
           </div>
         </div>
+      )}
+
+      {/* Supervisor Reassign Helper Modal */}
+      {reassignModalReq && (
+        <ReassignHelperModal
+          isOpen={Boolean(reassignModalReq)}
+          onClose={() => setReassignModalReq(null)}
+          requestId={reassignModalReq.id}
+          currentHelperId={reassignModalReq.assigned_helper}
+          onReassigned={fetchRequests}
+        />
       )}
     </div>
   );
