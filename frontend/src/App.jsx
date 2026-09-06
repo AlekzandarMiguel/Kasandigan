@@ -1,0 +1,171 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
+
+// Layouts
+import PublicLayout from './layouts/PublicLayout';
+import ResidentLayout from './layouts/ResidentLayout';
+import AdminLayout from './layouts/AdminLayout';
+
+// Public Pages
+import LandingPage from './pages/public/LandingPage';
+import AboutPage from './pages/public/AboutPage';
+import HowItWorksPage from './pages/public/HowItWorksPage';
+import LoginPage from './pages/public/LoginPage';
+import RegisterPage from './pages/public/RegisterPage';
+
+// Resident Pages
+import ResidentDashboard from './pages/resident/ResidentDashboard';
+import AssistanceRequestsList from './pages/resident/AssistanceRequestsList';
+import CreateRequestPage from './pages/resident/CreateRequestPage';
+import RequestDetailPage from './pages/resident/RequestDetailPage';
+import SkillsAvailabilityPage from './pages/resident/SkillsAvailabilityPage';
+import AssistanceTrackerPage from './pages/resident/AssistanceTrackerPage';
+import ResourcesLendingPage from './pages/resident/ResourcesLendingPage';
+import NotificationsPage from './pages/resident/NotificationsPage';
+import ProfileSettingsPage from './pages/resident/ProfileSettingsPage';
+
+// Staff Pages
+import StaffDashboard from './pages/staff/StaffDashboard';
+import ResidentVerificationsPage from './pages/staff/ResidentVerificationsPage';
+import StaffReportsPage from './pages/staff/StaffReportsPage';
+import StaffAnnouncementsPage from './pages/staff/StaffAnnouncementsPage';
+
+// Barangay Admin Pages
+import BarangayDashboard from './pages/admin/BarangayDashboard';
+import StaffManagementPage from './pages/admin/StaffManagementPage';
+import SkillsCategoriesPage from './pages/admin/SkillsCategoriesPage';
+import ActivityLogsPage from './pages/admin/ActivityLogsPage';
+
+// Platform Admin Pages
+import PlatformDashboard from './pages/platform/PlatformDashboard';
+import BarangaysManagementPage from './pages/platform/BarangaysManagementPage';
+import PlatformUsersPage from './pages/platform/PlatformUsersPage';
+import PlatformReportsPage from './pages/platform/PlatformReportsPage';
+
+// Loading Spinner
+import LoadingSpinner from './components/LoadingSpinner';
+
+const ProtectedRoute = ({ children, allowedRoles = [] }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <LoadingSpinner text="Authenticating user session..." />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+    // Redirect to user's authorized role dashboard
+    if (user.role === 'PLATFORM_ADMIN') return <Navigate to="/platform/dashboard" replace />;
+    if (user.role === 'BARANGAY_ADMIN') return <Navigate to="/admin/dashboard" replace />;
+    if (user.role === 'BARANGAY_STAFF') return <Navigate to="/staff/dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+export function App() {
+  return (
+    <AuthProvider>
+      <NotificationProvider>
+        <Router>
+          <Routes>
+            {/* Public Routes */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/how-it-works" element={<HowItWorksPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </Route>
+
+            {/* Resident Routes */}
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={['RESIDENT']}>
+                  <ResidentLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard" element={<ResidentDashboard />} />
+              <Route path="/requests" element={<AssistanceRequestsList />} />
+              <Route path="/requests/create" element={<CreateRequestPage />} />
+              <Route path="/requests/:id" element={<RequestDetailPage />} />
+              <Route path="/skills" element={<SkillsAvailabilityPage />} />
+              <Route path="/assistance" element={<AssistanceTrackerPage />} />
+              <Route path="/resources" element={<ResourcesLendingPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/settings" element={<ProfileSettingsPage />} />
+            </Route>
+
+            {/* Barangay Staff Routes */}
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={['BARANGAY_STAFF', 'BARANGAY_ADMIN', 'PLATFORM_ADMIN']}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/staff/dashboard" element={<StaffDashboard />} />
+              <Route path="/staff/verifications" element={<ResidentVerificationsPage />} />
+              <Route path="/staff/residents" element={<ResidentVerificationsPage />} />
+              <Route path="/staff/requests" element={<AssistanceRequestsList />} />
+              <Route path="/staff/reports" element={<StaffReportsPage />} />
+              <Route path="/staff/announcements" element={<StaffAnnouncementsPage />} />
+            </Route>
+
+            {/* Barangay Admin Routes */}
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={['BARANGAY_ADMIN', 'PLATFORM_ADMIN']}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/admin/dashboard" element={<BarangayDashboard />} />
+              <Route path="/admin/residents" element={<ResidentVerificationsPage />} />
+              <Route path="/admin/staff" element={<StaffManagementPage />} />
+              <Route path="/admin/requests" element={<AssistanceRequestsList />} />
+              <Route path="/admin/skills" element={<SkillsCategoriesPage />} />
+              <Route path="/admin/categories" element={<SkillsCategoriesPage />} />
+              <Route path="/admin/reports" element={<StaffReportsPage />} />
+              <Route path="/admin/announcements" element={<StaffAnnouncementsPage />} />
+              <Route path="/admin/activity-logs" element={<ActivityLogsPage />} />
+              <Route path="/admin/settings" element={<ProfileSettingsPage />} />
+            </Route>
+
+            {/* Platform Admin Routes */}
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={['PLATFORM_ADMIN']}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/platform/dashboard" element={<PlatformDashboard />} />
+              <Route path="/platform/barangays" element={<BarangaysManagementPage />} />
+              <Route path="/platform/users" element={<PlatformUsersPage />} />
+              <Route path="/platform/reports" element={<PlatformReportsPage />} />
+              <Route path="/platform/activity-logs" element={<ActivityLogsPage />} />
+              <Route path="/platform/settings" element={<ProfileSettingsPage />} />
+            </Route>
+
+            {/* Catch-all fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </NotificationProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;
