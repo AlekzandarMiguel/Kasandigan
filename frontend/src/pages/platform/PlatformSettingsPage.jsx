@@ -2,6 +2,7 @@ import PageHeader from '../../components/PageHeader';
 import React, { useState } from 'react';
 import { Settings, Shield, Server, Database, Save, CheckCircle, AlertTriangle, RefreshCw, Lock, Radio } from 'lucide-react';
 import api from '../../services/api';
+import ChangePasswordCard from '../../components/ChangePasswordCard';
 
 export const PlatformSettingsPage = () => {
   const [platformName, setPlatformName] = useState('Kasandigan Cloud SaaS');
@@ -165,19 +166,22 @@ export const PlatformSettingsPage = () => {
               </div>
             </label>
           </div>
-        </div>
 
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/20 transition-all disabled:opacity-50"
-          >
-            {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Platform Settings
-          </button>
+          <div className="pt-4 border-t border-slate-100 flex justify-end">
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/20 transition-all disabled:opacity-50 cursor-pointer"
+            >
+              {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Save Platform Settings
+            </button>
+          </div>
         </div>
       </form>
+
+      {/* Account Password Change */}
+      <ChangePasswordCard theme="indigo" />
     </div>
   );
 };

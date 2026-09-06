@@ -4,6 +4,7 @@ import { Settings, Building2, MapPin, Phone, Clock, User, Save, CheckCircle, Shi
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import ChangePasswordCard from '../../components/ChangePasswordCard';
 
 export const BarangaySettingsPage = () => {
   const { user } = useAuth();
@@ -31,7 +32,7 @@ export const BarangaySettingsPage = () => {
       setLoading(true);
       try {
         if (user?.barangay) {
-          const res = await api.get(`/tenants/barangays/${user.barangay}/`);
+          const res = await api.get(`/barangays/${user.barangay}/`);
           setBarangayData(prev => ({
             ...prev,
             ...res.data,
@@ -58,7 +59,7 @@ export const BarangaySettingsPage = () => {
     setSaving(true);
     try {
       if (user?.barangay) {
-        await api.patch(`/tenants/barangays/${user.barangay}/`, {
+        await api.patch(`/barangays/${user.barangay}/`, {
           contact_email: barangayData.contact_email,
           contact_phone: barangayData.contact_phone,
         });
@@ -236,18 +237,21 @@ export const BarangaySettingsPage = () => {
               <Plus className="w-3.5 h-3.5" /> Add Zone
             </button>
           </div>
-        </div>
 
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50"
-          >
-            {saving ? 'Saving Changes...' : <><Save className="w-4 h-4" /> Save Barangay Profile</>}
-          </button>
+          <div className="pt-4 border-t border-slate-100 flex justify-end">
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50 cursor-pointer"
+            >
+              {saving ? 'Saving Changes...' : <><Save className="w-4 h-4" /> Save Barangay Profile</>}
+            </button>
+          </div>
         </div>
       </form>
+
+      {/* Account Password Change */}
+      <ChangePasswordCard theme="emerald" />
     </div>
   );
 };

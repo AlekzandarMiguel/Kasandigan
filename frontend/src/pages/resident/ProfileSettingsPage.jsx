@@ -8,6 +8,7 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import ChangePasswordCard from '../../components/ChangePasswordCard';
 
 export const ProfileSettingsPage = () => {
   const { user, refreshUserProfile } = useAuth();
@@ -17,11 +18,6 @@ export const ProfileSettingsPage = () => {
     mobile_number: user?.mobile_number || '',
     zone: user?.zone || '',
     bio: user?.bio || '',
-  });
-
-  const [passwordData, setPasswordData] = useState({
-    old_password: '',
-    new_password: '',
   });
 
   const [blockedUsers, setBlockedUsers] = useState([]);
@@ -54,23 +50,6 @@ export const ProfileSettingsPage = () => {
       setMessage('Profile updated successfully!');
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to update profile.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-    setError('');
-
-    try {
-      await api.post('/auth/change-password/', passwordData);
-      setMessage('Password changed successfully.');
-      setPasswordData({ old_password: '', new_password: '' });
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to change password.');
     } finally {
       setLoading(false);
     }
@@ -210,45 +189,8 @@ export const ProfileSettingsPage = () => {
         </form>
       </div>
 
-      {/* Password Reset */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
-        <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-          <Lock className="w-4 h-4 text-slate-600" />
-          Change Password
-        </h3>
-
-        <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Current Password</label>
-            <input
-              type="password"
-              required
-              value={passwordData.old_password}
-              onChange={(e) => setPasswordData({ ...passwordData, old_password: e.target.value })}
-              className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">New Password</label>
-            <input
-              type="password"
-              required
-              value={passwordData.new_password}
-              onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
-              className="w-full text-sm px-3.5 py-2 rounded-xl border border-slate-300"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
-          >
-            Update Password
-          </button>
-        </form>
-      </div>
+      {/* Account Password Change */}
+      <ChangePasswordCard theme="emerald" />
 
       {/* Blocked Users Section (Section 22) */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-4">
