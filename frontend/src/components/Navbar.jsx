@@ -71,6 +71,28 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
               </div>
             </Link>
 
+            {/* Center: Navigation Links */}
+            <nav className="hidden md:flex items-center gap-6">
+              <Link
+                to="/"
+                className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+              >
+                Home
+              </Link>
+              <Link
+                to="/how-it-works"
+                className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+              >
+                How It Works
+              </Link>
+              <Link
+                to="/about"
+                className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors"
+              >
+                About Platform
+              </Link>
+            </nav>
+
             <div className="flex items-center gap-3">
               <LanguagePicker />
               <Link
