@@ -61,15 +61,20 @@ export const StaffReportsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-          <Flag className="w-6 h-6 text-rose-600" />
-          Community Safety & Moderation Reports
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          Investigate resident and request reports, take disciplinary action, and resolve community disputes.
-        </p>
-      </div>
+      <PageHeader
+        icon={Flag}
+        badge="Community Safety Triage"
+        badgeIcon={Flag}
+        title="Community Safety & Moderation Reports"
+        description="Investigate resident and request reports, take disciplinary action, and resolve community disputes."
+        theme="teal"
+        actions={
+          <span className="px-3.5 py-2 bg-rose-500/20 border border-rose-400/40 text-rose-200 rounded-xl text-xs font-bold flex items-center gap-1.5 backdrop-blur-xs">
+            <ShieldAlert className="w-4 h-4 text-rose-400" />
+            {reports.filter((r) => r.status === 'PENDING').length} Pending Triage
+          </span>
+        }
+      />
 
       {message && (
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">

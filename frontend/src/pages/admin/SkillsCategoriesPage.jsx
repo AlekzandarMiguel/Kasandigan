@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Wrench, Plus, Layers, Tag, Trash2, Edit2, CheckCircle2 } from 'lucide-react';
 import api from '../../services/api';
@@ -80,15 +81,14 @@ export const SkillsCategoriesPage = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-          <Wrench className="w-6 h-6 text-emerald-600" />
-          Categories & Skills Taxonomy
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          Manage assistance categories and community skills recognized in your barangay.
-        </p>
-      </div>
+      <PageHeader
+        icon={Wrench}
+        badge="Barangay Administration"
+        badgeIcon={Wrench}
+        title="Categories & Skills Taxonomy"
+        description="Manage assistance categories and community skills recognized in your barangay."
+        theme="slate"
+      />
 
       {message && (
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">

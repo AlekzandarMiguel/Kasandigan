@@ -46,7 +46,7 @@ export const ResidentAnnouncementsPage = () => {
   const regular = filtered.filter((a) => !a.is_pinned && !a.is_emergency_broadcast);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       <PageHeader
         icon={Megaphone}
         badge="Official Community Bulletins & Public Notices"

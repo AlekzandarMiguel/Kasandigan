@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -93,26 +94,26 @@ export const CreateRequestPage = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Back to requests</span>
-      </button>
+    <div className="max-w-3xl mx-auto space-y-6">
+      <PageHeader
+        icon={HeartHandshake}
+        badge="Community Mutual Aid Intake"
+        badgeIcon={Sparkles}
+        title="Create Assistance Request"
+        description="Fill in the details below. Our matching system will rank and invite qualified verified helpers in your barangay."
+        theme="emerald"
+        actions={
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 rounded-xl transition-all shadow-md cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4 text-emerald-600" />
+            <span>Back to requests</span>
+          </button>
+        }
+      />
 
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-        <div>
-          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-2">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Rule-Based Helper Matching</span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900">Create Assistance Request</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Fill in the details below. Our matching system will rank qualified verified helpers in your barangay.
-          </p>
-        </div>
 
         {error && (
           <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">

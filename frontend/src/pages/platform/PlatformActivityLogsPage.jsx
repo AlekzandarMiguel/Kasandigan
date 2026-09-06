@@ -18,7 +18,7 @@ export const PlatformActivityLogsPage = () => {
     try {
       const [logsRes, brgyRes] = await Promise.all([
         api.get('/activity-logs/'),
-        api.get('/tenants/barangays/'),
+        api.get('/barangays/'),
       ]);
       setLogs(logsRes.data.results || logsRes.data || []);
       setBarangays(brgyRes.data.results || brgyRes.data || []);

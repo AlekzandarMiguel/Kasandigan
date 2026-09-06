@@ -139,7 +139,7 @@ export const SkillsAvailabilityPage = () => {
   const availableSkillsToAdd = allSkills.filter((s) => !addedSkillIds.has(s.id));
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="space-y-8">
       <PageHeader
         icon={Wrench}
         badge="Volunteer Capability Profile"

@@ -67,30 +67,22 @@ export const SkillsManagementPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              Barangay Administration
-            </span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-            <Wrench className="w-6 h-6 text-emerald-600" />
-            Skills Taxonomy & Credential Standards
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Define recognized community skills, trade specializations, and mandatory certification flags for helpers.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all"
-        >
-          <Plus className="w-4 h-4" /> Add Recognized Skill
-        </button>
-      </div>
+      <PageHeader
+        icon={Wrench}
+        badge="Barangay Administration"
+        badgeIcon={Wrench}
+        title="Skills Taxonomy & Credential Standards"
+        description="Define recognized community skills, trade specializations, and mandatory certification flags for helpers."
+        theme="slate"
+        actions={
+          <button
+            onClick={() => setShowModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all cursor-pointer hover:scale-102"
+          >
+            <Plus className="w-4 h-4" /> Add Recognized Skill
+          </button>
+        }
+      />
 
       {/* Search Bar */}
       <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">

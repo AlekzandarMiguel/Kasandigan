@@ -52,31 +52,22 @@ export const StaffRequestsTriagePage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-teal-100 text-teal-800">
-              Staff Operations
-            </span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-            <HeartHandshake className="w-6 h-6 text-teal-600" />
-            Community Aid & Field Triage Desk
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Desk officer intake queue to triage incoming requests, monitor field work, and verify completion on the ground.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
+      <PageHeader
+        icon={HeartHandshake}
+        badge="Staff Operations"
+        badgeIcon={HeartHandshake}
+        title="Community Aid & Field Triage Desk"
+        description="Desk officer intake queue to triage incoming requests, monitor field work, and verify completion on the ground."
+        theme="teal"
+        actions={
           <button
             onClick={() => setIntakeOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-md shadow-teal-600/20 transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all cursor-pointer hover:scale-102"
           >
             <Plus className="w-4 h-4" /> Intake Walk-In Citizen Request
           </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Triage Tabs & Search */}
       <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">

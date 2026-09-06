@@ -68,62 +68,56 @@ export const MunicipalDILGReportPage = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-20">
       {/* Control Bar (Hidden when printing) */}
-      <div className="print:hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-3">
-          <Link
-            to="/platform/dashboard"
-            className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
-            title="Back to Platform Dashboard"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <h1 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-indigo-600" />
-              Municipal DILG Consolidated Report
-            </h1>
-            <p className="text-xs text-slate-500">Municipality of Maramag • 20 Barangays Unified Performance Dossier</p>
-          </div>
-        </div>
+      {/* Control Bar (Hidden when printing) */}
+      <div className="print:hidden">
+        <PageHeader
+          icon={Building2}
+          badge="Municipality of Maramag • 20 Barangays Unified Performance Dossier"
+          badgeIcon={Building2}
+          title="Municipal DILG Consolidated Report"
+          description="Consolidated municipal governance telemetry, assistance throughput, volunteer activity, and completion compliance metrics."
+          theme="indigo"
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={month}
+                onChange={(e) => setMonth(Number(e.target.value))}
+                className="text-xs font-semibold px-3 py-2 rounded-xl border border-white/20 bg-white/10 text-white backdrop-blur-xs"
+              >
+                {[
+                  'January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November', 'December'
+                ].map((mName, idx) => (
+                  <option key={idx + 1} value={idx + 1} className="bg-slate-900 text-white">{mName}</option>
+                ))}
+              </select>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <select
-            value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
-            className="text-xs font-semibold px-3 py-2 rounded-xl border border-slate-300 bg-white"
-          >
-            {[
-              'January', 'February', 'March', 'April', 'May', 'June',
-              'July', 'August', 'September', 'October', 'November', 'December'
-            ].map((mName, idx) => (
-              <option key={idx + 1} value={idx + 1}>{mName}</option>
-            ))}
-          </select>
+              <select
+                value={year}
+                onChange={(e) => setYear(Number(e.target.value))}
+                className="text-xs font-semibold px-3 py-2 rounded-xl border border-white/20 bg-white/10 text-white backdrop-blur-xs"
+              >
+                {[2025, 2026, 2027].map((y) => (
+                  <option key={y} value={y} className="bg-slate-900 text-white">{y}</option>
+                ))}
+              </select>
 
-          <select
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            className="text-xs font-semibold px-3 py-2 rounded-xl border border-slate-300 bg-white"
-          >
-            {[2025, 2026, 2027].map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+              <button
+                onClick={handleExportCSV}
+                className="px-3.5 py-2 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer backdrop-blur-xs"
+              >
+                <Download className="w-3.5 h-3.5" /> Export CSV
+              </button>
 
-          <button
-            onClick={handleExportCSV}
-            className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-colors flex items-center gap-1.5"
-          >
-            <Download className="w-3.5 h-3.5" /> Export CSV
-          </button>
-
-          <button
-            onClick={handlePrint}
-            className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
-          >
-            <Printer className="w-3.5 h-3.5" /> Print / Save PDF
-          </button>
-        </div>
+              <button
+                onClick={handlePrint}
+                className="px-4 py-2 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <Printer className="w-3.5 h-3.5 text-indigo-600" /> Print / Save PDF
+              </button>
+            </div>
+          }
+        />
       </div>
 
       {/* Printable Official DILG Document Container */}

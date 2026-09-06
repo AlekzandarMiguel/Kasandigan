@@ -5,6 +5,7 @@ import {
   Megaphone, Bell, ArrowRight, Sparkles, MapPin, Calendar, Clock
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import api from '../../services/api';
 import StatusBadge from '../../components/StatusBadge';
 import EmptyState from '../../components/EmptyState';
@@ -13,6 +14,7 @@ import PageHeader from '../../components/PageHeader';
 
 export const ResidentDashboard = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,14 +53,14 @@ export const ResidentDashboard = () => {
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer"
             >
               <PlusCircle className="w-4 h-4 text-emerald-700" />
-              <span>Request Assistance</span>
+              <span>{t('btn_request_help', 'Request Assistance')}</span>
             </Link>
             <Link
               to="/skills"
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs sm:text-sm font-bold rounded-xl backdrop-blur-xs transition-all cursor-pointer"
             >
               <Wrench className="w-4 h-4 text-emerald-300" />
-              <span>Offer Skills & Availability</span>
+              <span>{t('btn_offer_skills', 'Offer Skills & Availability')}</span>
             </Link>
           </div>
         }
@@ -67,7 +69,9 @@ export const ResidentDashboard = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">My Active Requests</div>
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            {t('stat_active_requests', 'My Active Requests')}
+          </div>
           <div className="flex items-baseline justify-between">
             <div className="text-3xl font-black text-slate-900">{summary.my_active_requests || 0}</div>
             <HeartHandshake className="w-6 h-6 text-emerald-500" />
@@ -78,7 +82,9 @@ export const ResidentDashboard = () => {
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Requests I'm Helping</div>
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            {t('stat_helping_requests', "Requests I'm Helping")}
+          </div>
           <div className="flex items-baseline justify-between">
             <div className="text-3xl font-black text-slate-900">{summary.requests_helping || 0}</div>
             <CheckCircle2 className="w-6 h-6 text-blue-500" />
@@ -89,7 +95,9 @@ export const ResidentDashboard = () => {
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Completed Assistance</div>
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            {t('stat_completed_assistance', 'Completed Assistance')}
+          </div>
           <div className="flex items-baseline justify-between">
             <div className="text-3xl font-black text-slate-900">{summary.completed_assistance || 0}</div>
             <Sparkles className="w-6 h-6 text-indigo-500" />
@@ -98,7 +106,9 @@ export const ResidentDashboard = () => {
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Community Rating</div>
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            {t('stat_community_rating', 'Community Rating')}
+          </div>
           <div className="flex items-baseline justify-between">
             <div className="text-3xl font-black text-slate-900 flex items-center gap-1">
               {summary.my_rating > 0 ? summary.my_rating.toFixed(1) : '5.0'}

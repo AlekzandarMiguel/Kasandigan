@@ -6,11 +6,13 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import EmptyState from '../../components/EmptyState';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 export const NotificationsPage = () => {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tabFilter, setTabFilter] = useState('ALL');
@@ -95,41 +97,56 @@ export const NotificationsPage = () => {
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
+  const bulletinsLink =
+    user?.role === 'PLATFORM_ADMIN'
+      ? '/platform/announcements'
+      : user?.role === 'BARANGAY_ADMIN'
+      ? '/admin/announcements'
+      : user?.role === 'BARANGAY_STAFF'
+      ? '/staff/announcements'
+      : '/announcements';
+
+  const isPlatformAdmin = user?.role === 'PLATFORM_ADMIN';
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="space-y-6">
       <PageHeader
         icon={Bell}
         badge={`Personal Inbox • ${unreadCount > 0 ? `${unreadCount} Unread Updates` : 'All Caught Up'}`}
         badgeIcon={Bell}
         title="Personal Activity Notifications"
         description="Direct personal updates regarding your assistance tickets, volunteer assignments, ratings, and account status."
-        theme="emerald"
+        theme="indigo"
         actions={
-          unreadCount > 0 && (
-            <button
-              onClick={handleMarkAll}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-emerald-950 bg-white hover:bg-emerald-50 rounded-xl transition-all shadow-md cursor-pointer"
-            >
-              <CheckCheck className="w-4 h-4 text-emerald-700" />
-              <span>Mark all read</span>
-            </button>
-          )
+          <div className="flex flex-col lg:items-end gap-2.5 max-w-md w-full lg:w-auto">
+            <p className="text-xs text-slate-300 leading-relaxed lg:text-right">
+              {isPlatformAdmin
+                ? 'Looking for municipal bulletins, MDRRMO alerts, or public advisories?'
+                : 'Looking for official barangay advisories, clean-up drives, or weather advisories?'}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              <Link
+                to={bulletinsLink}
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 flex items-center gap-2 transition-all cursor-pointer hover:scale-102"
+              >
+                <Megaphone className="w-4 h-4" />
+                <span>{isPlatformAdmin ? 'View Municipal Bulletins' : 'View Bulletins'}</span>
+              </Link>
+
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAll}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 rounded-xl transition-all shadow-md cursor-pointer"
+                >
+                  <CheckCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Mark all read</span>
+                </button>
+              )}
+            </div>
+          </div>
         }
       />
-
-      {/* Redirect Banner to Barangay Announcements */}
-      <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2 text-slate-600">
-          <Megaphone className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>Looking for official barangay advisories, clean-up drives, or weather advisories?</span>
-        </div>
-        <Link
-          to="/announcements"
-          className="font-bold text-emerald-700 hover:text-emerald-800 shrink-0 flex items-center gap-1"
-        >
-          View Bulletins →
-        </Link>
-      </div>
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-1.5 p-1 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-x-auto text-xs font-bold">

@@ -5,6 +5,12 @@ import api from '../../services/api';
 import StatusBadge from '../../components/StatusBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
+const formatBarangayName = (name) => {
+  if (!name) return '';
+  const clean = name.replace(/^(Barangay|Brgy\.?)\s+/i, '').trim();
+  return `Barangay ${clean}`;
+};
+
 export const BarangaysManagementPage = () => {
   const [barangays, setBarangays] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +27,8 @@ export const BarangaysManagementPage = () => {
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [search, setSearch] = useState('');
+  const [selectedBarangayFilter, setSelectedBarangayFilter] = useState('');
 
   const fetchBarangays = async () => {
     setLoading(true);
@@ -106,6 +114,36 @@ export const BarangaysManagementPage = () => {
         </div>
       )}
 
+      {/* Filter and Dropdown Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Building2 className="w-5 h-5 text-indigo-600" />
+          <select
+            value={selectedBarangayFilter}
+            onChange={(e) => setSelectedBarangayFilter(e.target.value)}
+            className="text-xs font-bold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden cursor-pointer"
+          >
+            <option value="">All Barangays ({barangays.length})</option>
+            {barangays.map((b) => (
+              <option key={b.id} value={String(b.id)}>
+                {formatBarangayName(b.name)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="relative w-full sm:w-72">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search barangay name or slug..."
+            className="w-full text-xs pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+          />
+        </div>
+      </div>
+
       {/* Tenants Table */}
       <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
@@ -120,7 +158,13 @@ export const BarangaysManagementPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
-              {barangays.map((b) => (
+              {barangays
+                .filter((b) => {
+                  if (selectedBarangayFilter && String(b.id) !== String(selectedBarangayFilter)) return false;
+                  if (search && !b.name.toLowerCase().includes(search.toLowerCase()) && !(b.code && b.code.toLowerCase().includes(search.toLowerCase()))) return false;
+                  return true;
+                })
+                .map((b) => (
                 <tr key={b.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="px-6 py-4">
                     <div className="font-bold text-slate-900 text-sm">{b.name}</div>

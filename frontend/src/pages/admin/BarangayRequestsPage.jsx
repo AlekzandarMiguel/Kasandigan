@@ -63,36 +63,27 @@ export const BarangayRequestsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              Barangay Administration
+      <PageHeader
+        icon={HeartHandshake}
+        badge="Barangay Administration"
+        badgeIcon={HeartHandshake}
+        title="Assistance Request Supervisor Pipeline"
+        description="Administrative monitoring and dispatch oversight for community requests across all zones."
+        theme="slate"
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-3 py-1.5 bg-amber-500/20 text-amber-200 border border-amber-400/30 rounded-xl text-xs font-bold backdrop-blur-xs">
+              {requests.filter((r) => r.status === 'PENDING').length} Pending
+            </span>
+            <span className="px-3 py-1.5 bg-blue-500/20 text-blue-200 border border-blue-400/30 rounded-xl text-xs font-bold backdrop-blur-xs">
+              {requests.filter((r) => ['ACCEPTED', 'IN_PROGRESS'].includes(r.status)).length} In Progress
+            </span>
+            <span className="px-3 py-1.5 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 rounded-xl text-xs font-bold backdrop-blur-xs">
+              {requests.filter((r) => r.status === 'COMPLETED').length} Completed
             </span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-            <HeartHandshake className="w-6 h-6 text-emerald-600" />
-            Assistance Request Supervisor Pipeline
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Administrative monitoring and dispatch oversight for community requests across all zones.
-          </p>
-        </div>
-
-        {/* Pipeline Summary Badges */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-xl text-xs font-bold">
-            {requests.filter(r => r.status === 'PENDING').length} Pending
-          </span>
-          <span className="px-3 py-1 bg-blue-50 text-blue-800 border border-blue-200 rounded-xl text-xs font-bold">
-            {requests.filter(r => ['ACCEPTED', 'IN_PROGRESS'].includes(r.status)).length} In Progress
-          </span>
-          <span className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold">
-            {requests.filter(r => r.status === 'COMPLETED').length} Completed
-          </span>
-        </div>
-      </div>
+        }
+      />
 
       {/* Filter Bar */}
       <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center gap-3">

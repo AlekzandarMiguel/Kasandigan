@@ -12,13 +12,14 @@ export const PageHeader = ({
   description,
   actions,
   theme = 'emerald', // 'emerald' | 'indigo' | 'slate' | 'teal'
+  children,
 }) => {
   const themeClasses = {
-    emerald: 'bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-900 border-emerald-800/40',
-    indigo: 'bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 border-indigo-900/40',
     slate: 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-slate-700/40',
-    teal: 'bg-gradient-to-r from-teal-800 via-emerald-900 to-slate-900 border-teal-800/40',
-  }[theme] || 'bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-900 border-emerald-800/40';
+    indigo: 'bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 border-indigo-900/40',
+    emerald: 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-emerald-700/40',
+    teal: 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-teal-700/40',
+  }[theme] || 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-slate-700/40';
 
   return (
     <div className={`text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden border ${themeClasses}`}>
@@ -47,6 +48,12 @@ export const PageHeader = ({
           </div>
         )}
       </div>
+
+      {children && (
+        <div className="mt-4 pt-4 border-t border-white/10 relative z-10">
+          {children}
+        </div>
+      )}
     </div>
   );
 };

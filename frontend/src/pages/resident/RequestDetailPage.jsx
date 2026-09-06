@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
@@ -182,14 +183,24 @@ export const RequestDetailPage = () => {
   const myInvitation = invitations.find((inv) => inv.helper === user?.id && inv.status === 'INVITED');
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Back to list</span>
-      </button>
+    <div className="space-y-6">
+      <PageHeader
+        icon={HeartHandshake}
+        badge={`Ticket #${request.id} • ${request.category_name || 'Community Aid'}`}
+        badgeIcon={HeartHandshake}
+        title={request.title || 'Assistance Request Details'}
+        description={`Posted by ${request.requester_name || 'Neighbor'} in Zone ${request.zone || 'N/A'}`}
+        theme="emerald"
+        actions={
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 rounded-xl transition-all shadow-md cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4 text-emerald-600" />
+            <span>Back to list</span>
+          </button>
+        }
+      />
 
       {message && (
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">

@@ -10,11 +10,18 @@ import api from '../../services/api';
 import StatusBadge from '../../components/StatusBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
+const formatBarangayName = (name) => {
+  if (!name) return '';
+  const clean = name.replace(/^(Barangay|Brgy\.?)\s+/i, '').trim();
+  return `Barangay ${clean}`;
+};
+
 export const PlatformDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [municipalGrid, setMunicipalGrid] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchBrgy, setSearchBrgy] = useState('');
+  const [selectedBarangayFilter, setSelectedBarangayFilter] = useState('');
 
   // MDRRMO Alert Modal State
   const [showAlertModal, setShowAlertModal] = useState(false);
@@ -85,49 +92,41 @@ export const PlatformDashboard = () => {
   const summary = metrics?.summary || {};
   const barangayStats = metrics?.barangay_stats || [];
 
-  const filteredGrid = municipalGrid.filter(b => 
-    b.name.toLowerCase().includes(searchBrgy.toLowerCase()) ||
-    (b.code && b.code.toLowerCase().includes(searchBrgy.toLowerCase()))
-  );
+  const filteredGrid = municipalGrid.filter(b => {
+    if (selectedBarangayFilter && String(b.id) !== String(selectedBarangayFilter)) return false;
+    if (searchBrgy && !b.name.toLowerCase().includes(searchBrgy.toLowerCase()) && !(b.code && b.code.toLowerCase().includes(searchBrgy.toLowerCase()))) return false;
+    return true;
+  });
 
   return (
     <div className="space-y-8">
       {/* SaaS Master Banner */}
-      <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-emerald-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="max-w-2xl space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
-              <Building2 className="w-3.5 h-3.5" />
-              <span>Municipality of Maramag, Bukidnon • Central SaaS Governance</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Kasandigan Municipal Operations Hub
-            </h1>
-            <p className="text-slate-300 text-xs sm:text-sm">
-              Unified governance, cross-barangay tenant orchestration, MDRRMO emergency broadcasts, and consolidated DILG performance compliance.
-            </p>
-          </div>
-
-          {/* Quick Action Buttons */}
+      <PageHeader
+        icon={Building2}
+        badge="Municipality of Maramag, Bukidnon • Central SaaS Governance"
+        badgeIcon={Building2}
+        title="Kasandigan Municipal Operations Hub"
+        description="Unified governance, cross-barangay tenant orchestration, MDRRMO emergency broadcasts, and consolidated DILG performance compliance."
+        theme="indigo"
+        actions={
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setShowAlertModal(true)}
-              className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-lg shadow-rose-600/30 flex items-center gap-2 transition-all"
+              className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-lg shadow-rose-600/30 flex items-center gap-2 transition-all cursor-pointer hover:scale-102"
             >
               <Radio className="w-4 h-4 animate-pulse" />
-              Broadcast MDRRMO Alert
+              <span>Broadcast MDRRMO Alert</span>
             </button>
             <Link
               to="/platform/dilg-report"
-              className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition-all"
+              className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition-all cursor-pointer hover:scale-102"
             >
               <FileText className="w-4 h-4" />
-              Municipal DILG Report
+              <span>Municipal DILG Report</span>
             </Link>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Global SaaS Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -193,16 +192,30 @@ export const PlatformDashboard = () => {
             </p>
           </div>
 
-          {/* Search bar */}
-          <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              placeholder="Filter barangay (e.g. Dologon, Musuan)..."
-              value={searchBrgy}
-              onChange={(e) => setSearchBrgy(e.target.value)}
-              className="w-full text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
-            />
+          {/* Barangay Dropdown Selector & Search */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+            <select
+              value={selectedBarangayFilter}
+              onChange={(e) => setSelectedBarangayFilter(e.target.value)}
+              className="text-xs font-bold text-slate-800 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden cursor-pointer shadow-2xs"
+            >
+              <option value="">All Barangays (Overview)</option>
+              {municipalGrid.map((b) => (
+                <option key={b.id} value={String(b.id)}>
+                  {formatBarangayName(b.name)}
+                </option>
+              ))}
+            </select>
+            <div className="relative w-full sm:w-56">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Filter by name..."
+                value={searchBrgy}
+                onChange={(e) => setSearchBrgy(e.target.value)}
+                className="w-full text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+              />
+            </div>
           </div>
         </div>
 
@@ -217,7 +230,7 @@ export const PlatformDashboard = () => {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <h3 className="text-sm font-black text-slate-900">
-                      Brgy. {b.name}
+                      {formatBarangayName(b.name)}
                     </h3>
                     <span className="text-[10px] font-mono text-slate-400 font-bold">
                       CODE: {b.code || 'MRM'} • {b.zones_count || 0} Puroks

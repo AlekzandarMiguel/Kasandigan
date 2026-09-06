@@ -65,25 +65,23 @@ export const StaffManagementPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <UserCheck className="w-6 h-6 text-emerald-600" />
-            Barangay Staff Delegations
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Create and oversee staff personnel authorized to verify residents and triage reports.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-sm transition-all shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Staff Member</span>
-        </button>
-      </div>
+      <PageHeader
+        icon={UserCheck}
+        badge="Barangay Administration"
+        badgeIcon={UserCheck}
+        title="Barangay Staff Delegations"
+        description="Create and oversee staff personnel authorized to verify residents and triage reports."
+        theme="slate"
+        actions={
+          <button
+            onClick={() => setModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 transition-all shrink-0 cursor-pointer hover:scale-102"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Staff Member</span>
+          </button>
+        }
+      />
 
       {message && (
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">

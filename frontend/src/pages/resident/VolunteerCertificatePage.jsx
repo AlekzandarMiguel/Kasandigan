@@ -63,8 +63,8 @@ export const VolunteerCertificatePage = () => {
       {/* The Printable Certificate Container */}
       <div className="bg-white p-8 sm:p-12 rounded-3xl border-8 border-double border-emerald-800 shadow-2xl space-y-8 relative overflow-hidden print:p-8 print:border-8 print:shadow-none">
         {/* Background Watermark Seal */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
-          <Award className="w-[500px] h-[500px] text-emerald-900" />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+          <img src="/logo.png" alt="Seal Watermark" className="w-[420px] h-[420px] object-contain opacity-[0.06]" />
         </div>
 
         {/* Certificate Header */}
