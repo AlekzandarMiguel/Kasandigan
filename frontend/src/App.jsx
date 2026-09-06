@@ -104,12 +104,14 @@ export function App() {
         <LanguageProvider>
           <Router>
             <Routes>
+            {/* Standalone Login Route (No Public Navbar) */}
+            <Route path="/login" element={<LoginPage />} />
+
             {/* Public Routes */}
             <Route element={<PublicLayout />}>
               <Route path="/" element={<LandingPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/how-it-works" element={<HowItWorksPage />} />
-              <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
             </Route>
 
