@@ -30,7 +30,7 @@ export const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-6 shadow-xs border border-emerald-200">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Multi-Tenant Barangay Assistance & Skill Matching</span>
+            <span>Municipality of Maramag, Bukidnon • 20 Barangays Assistance Network</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight max-w-4xl mx-auto leading-tight sm:leading-none mb-6">
@@ -38,7 +38,7 @@ export const LandingPage = () => {
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Connect with verified neighbors in your Philippine barangay who can help, share practical skills, and lend household tools — through a transparent, rule-based matching system.
+            Connect with verified neighbors across all 20 barangays of Maramag, Bukidnon who can help, share practical skills, and lend household tools — through a transparent, rule-based matching system.
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-14">
@@ -46,7 +46,7 @@ export const LandingPage = () => {
               to="/register"
               className="w-full sm:w-auto px-8 py-3.5 text-base font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
             >
-              <span>Join Your Barangay</span>
+              <span>Join Your Barangay in Maramag</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
@@ -58,17 +58,17 @@ export const LandingPage = () => {
           </div>
 
           {/* Quick Demo Access Bar */}
-          <div className="max-w-4xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-md p-6 text-left">
+          <div className="max-w-5xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-md p-6 text-left">
             <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                  Instant Interactive Demo Accounts
+                  Instant Interactive Demo Accounts (Maramag, Bukidnon)
                 </h3>
                 <p className="text-xs text-slate-500">Click any role below to test the platform instantly (Password: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-mono">Password123!</code>)</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
               <button
                 onClick={() => handleQuickLogin('platform.admin@kasandigan.gov.ph', 'PLATFORM_ADMIN')}
                 className="p-3 text-left rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 transition-all text-xs"
@@ -76,27 +76,37 @@ export const LandingPage = () => {
                 <div className="font-bold text-slate-900 flex items-center gap-1">
                   <Building2 className="w-3.5 h-3.5 text-indigo-600" /> Platform Admin
                 </div>
-                <div className="text-[11px] text-slate-500 truncate mt-0.5">SaaS & All Barangays</div>
+                <div className="text-[11px] text-slate-500 truncate mt-0.5">LGU Maramag Command</div>
               </button>
 
               <button
-                onClick={() => handleQuickLogin('admin.sanjose@kasandigan.gov.ph', 'BARANGAY_ADMIN')}
+                onClick={() => handleQuickLogin('admin.southpoblacion@kasandigan.gov.ph', 'BARANGAY_ADMIN')}
                 className="p-3 text-left rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 transition-all text-xs"
               >
                 <div className="font-bold text-slate-900 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Barangay Admin
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Brgy Admin
                 </div>
-                <div className="text-[11px] text-slate-500 truncate mt-0.5">San Jose Console</div>
+                <div className="text-[11px] text-slate-500 truncate mt-0.5">South Poblacion</div>
               </button>
 
               <button
-                onClick={() => handleQuickLogin('staff.sanjose@kasandigan.gov.ph', 'BARANGAY_STAFF')}
+                onClick={() => handleQuickLogin('staff.southpoblacion@kasandigan.gov.ph', 'BARANGAY_STAFF')}
                 className="p-3 text-left rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 transition-all text-xs"
               >
                 <div className="font-bold text-slate-900 flex items-center gap-1">
-                  <UserCheck className="w-3.5 h-3.5 text-teal-600" /> Barangay Staff
+                  <UserCheck className="w-3.5 h-3.5 text-teal-600" /> Brgy Staff
                 </div>
                 <div className="text-[11px] text-slate-500 truncate mt-0.5">Verification & Triage</div>
+              </button>
+
+              <button
+                onClick={() => handleQuickLogin('admin.musuan@kasandigan.gov.ph', 'BARANGAY_ADMIN')}
+                className="p-3 text-left rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 transition-all text-xs"
+              >
+                <div className="font-bold text-slate-900 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-teal-700" /> Brgy Admin
+                </div>
+                <div className="text-[11px] text-slate-500 truncate mt-0.5">Musuan (CMU)</div>
               </button>
 
               <button
@@ -106,7 +116,7 @@ export const LandingPage = () => {
                 <div className="font-bold text-slate-900 flex items-center gap-1">
                   <Users className="w-3.5 h-3.5 text-amber-600" /> Maria (Requester)
                 </div>
-                <div className="text-[11px] text-slate-500 truncate mt-0.5">PC Repair Request</div>
+                <div className="text-[11px] text-slate-500 truncate mt-0.5">Purok 2 Centro</div>
               </button>
 
               <button

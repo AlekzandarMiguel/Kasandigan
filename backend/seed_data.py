@@ -23,48 +23,244 @@ from reports.models import Report
 def run_seed():
     print("Seeding Kasandigan database...")
 
-    # 1. Tenants (Barangays)
-    b_sanjose, _ = Barangay.objects.get_or_create(
-        code="san-jose",
-        defaults={
-            "name": "Barangay San Jose",
-            "municipality_city": "Pasig City",
-            "province": "Metro Manila",
-            "region": "National Capital Region",
-            "contact_number": "+63 2 8643 1111",
-            "email": "info@sanjose-pasig.gov.ph",
+    # 1. All 20 Official Barangays of Maramag, Bukidnon
+    maramag_barangays_data = [
+        {
+            "code": "south-poblacion",
+            "name": "Barangay South Poblacion",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1201",
+            "email": "southpoblacion@maramag.gov.ph",
             "status": "ACTIVE",
-            "zones": ["Zone 1 - Riverside", "Zone 2 - Centro", "Zone 3 - Greenwoods", "Zone 4 - Manggahan", "Zone 5 - Kapasigan"]
-        }
-    )
-
-    b_poblacion, _ = Barangay.objects.get_or_create(
-        code="poblacion",
-        defaults={
-            "name": "Barangay Poblacion",
-            "municipality_city": "Makati City",
-            "province": "Metro Manila",
-            "region": "National Capital Region",
-            "contact_number": "+63 2 8899 2222",
-            "email": "contact@poblacion-makati.gov.ph",
+            "zones": ["Purok 1 - Riverside", "Purok 2 - Centro", "Purok 3 - Terminal", "Purok 4 - Municipal Hall", "Purok 5 - Public Market", "Purok 6 - Sayre Highway", "Purok 7"]
+        },
+        {
+            "code": "musuan",
+            "name": "Barangay Musuan",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1202",
+            "email": "musuan@maramag.gov.ph",
             "status": "ACTIVE",
-            "zones": ["Poblacion Heritage", "Burgos North", "Rockwell East", "Kalayaan West"]
-        }
-    )
-
-    b_sanmiguel, _ = Barangay.objects.get_or_create(
-        code="san-miguel",
-        defaults={
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Sitio Sayre", "Sitio Musuan Peak", "CMU Faculty Village"]
+        },
+        {
+            "code": "north-poblacion",
+            "name": "Barangay North Poblacion",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1203",
+            "email": "northpoblacion@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2 - Commercial Center", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "base-camp",
+            "name": "Barangay Base Camp",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1204",
+            "email": "basecamp@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Sitio Ki-isid", "Sitio Crossing"]
+        },
+        {
+            "code": "anahawon",
+            "name": "Barangay Anahawon",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1205",
+            "email": "anahawon@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "bagongsilang",
+            "name": "Barangay Bagongsilang",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1206",
+            "email": "bagongsilang@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "bayabason",
+            "name": "Barangay Bayabason",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1207",
+            "email": "bayabason@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "camp-1",
+            "name": "Barangay Camp 1",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1208",
+            "email": "camp1@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "colambugon",
+            "name": "Barangay Colambugon",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1209",
+            "email": "colambugon@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "dagumbaan",
+            "name": "Barangay Dagumba-an",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1210",
+            "email": "dagumbaan@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "danggawan",
+            "name": "Barangay Danggawan",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1211",
+            "email": "danggawan@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "dibulawan",
+            "name": "Barangay Dibulawan",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1212",
+            "email": "dibulawan@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "kiharong",
+            "name": "Barangay Kiharong",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1213",
+            "email": "kiharong@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "kisanday",
+            "name": "Barangay Kisanday",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1214",
+            "email": "kisanday@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "kuya",
+            "name": "Barangay Kuya",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1215",
+            "email": "kuya@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "la-asuncion",
+            "name": "Barangay La Asuncion",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1216",
+            "email": "laasuncion@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "panalsalan",
+            "name": "Barangay Panalsalan",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1217",
+            "email": "panalsalan@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "san-miguel-maramag",
             "name": "Barangay San Miguel",
-            "municipality_city": "Manila City",
-            "province": "Metro Manila",
-            "region": "National Capital Region",
-            "contact_number": "+63 2 8734 3333",
-            "email": "barangay@sanmiguel-manila.gov.ph",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1218",
+            "email": "sanmiguel@maramag.gov.ph",
             "status": "ACTIVE",
-            "zones": ["Zone 1 - Mendiola", "Zone 2 - Malacañang", "Zone 3 - Legarda", "Zone 4 - Arlegui"]
-        }
-    )
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "san-roque",
+            "name": "Barangay San Roque",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1219",
+            "email": "sanroque@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+        {
+            "code": "tubigon",
+            "name": "Barangay Tubigon",
+            "municipality_city": "Maramag",
+            "province": "Bukidnon",
+            "region": "Region X - Northern Mindanao",
+            "contact_number": "+63 88 356 1220",
+            "email": "tubigon@maramag.gov.ph",
+            "status": "ACTIVE",
+            "zones": ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5"]
+        },
+    ]
+
+    barangays_map = {}
+    for b_data in maramag_barangays_data:
+        b_obj, _ = Barangay.objects.update_or_create(
+            code=b_data["code"],
+            defaults=b_data
+        )
+        barangays_map[b_data["code"]] = b_obj
+
+    b_southpob = barangays_map["south-poblacion"]
+    b_musuan = barangays_map["musuan"]
+    b_basecamp = barangays_map["base-camp"]
+
+    # Clean up obsolete non-Maramag mock tenants if present
+    Barangay.objects.filter(code__in=["san-jose", "poblacion", "san-miguel"]).delete()
 
     # 2. Categories & Skills
     categories_data = [
@@ -114,65 +310,120 @@ def run_seed():
             skill_map[s_name] = sk
 
     # 3. Key Users
-    # Platform Admin
+    # Platform Admin (LGU Maramag Municipal Admin)
     p_admin, _ = User.objects.get_or_create(
         email="platform.admin@kasandigan.gov.ph",
         defaults={
-            "first_name": "Kasandigan",
-            "last_name": "Platform Overseer",
+            "first_name": "LGU Maramag",
+            "last_name": "Municipal Admin",
             "role": "PLATFORM_ADMIN",
             "is_staff": True,
             "is_superuser": True,
             "verification_status": "VERIFIED"
         }
     )
+    p_admin.first_name = "LGU Maramag"
+    p_admin.last_name = "Municipal Admin"
     p_admin.set_password("Password123!")
     p_admin.save()
 
-    # Barangay San Jose Admin & Staff
+    # Barangay South Poblacion Admin & Staff (Maramag Poblacion Center)
     b_admin, _ = User.objects.get_or_create(
-        email="admin.sanjose@kasandigan.gov.ph",
+        email="admin.southpoblacion@kasandigan.gov.ph",
         defaults={
             "first_name": "Hon. Roberto",
             "last_name": "Alvarez",
             "role": "BARANGAY_ADMIN",
-            "barangay": b_sanjose,
+            "barangay": b_southpob,
             "is_staff": True,
             "verification_status": "VERIFIED",
             "mobile_number": "+63 917 111 0001"
         }
     )
+    b_admin.barangay = b_southpob
     b_admin.set_password("Password123!")
     b_admin.save()
 
     b_staff, _ = User.objects.get_or_create(
+        email="staff.southpoblacion@kasandigan.gov.ph",
+        defaults={
+            "first_name": "Corazon",
+            "last_name": "Villanueva",
+            "role": "BARANGAY_STAFF",
+            "barangay": b_southpob,
+            "verification_status": "VERIFIED",
+            "mobile_number": "+63 917 111 0002"
+        }
+    )
+    b_staff.barangay = b_southpob
+    b_staff.set_password("Password123!")
+    b_staff.save()
+
+    # Musuan Admin (CMU Campus Area)
+    musuan_admin, _ = User.objects.get_or_create(
+        email="admin.musuan@kasandigan.gov.ph",
+        defaults={
+            "first_name": "Hon. Danilo",
+            "last_name": "Orevillo",
+            "role": "BARANGAY_ADMIN",
+            "barangay": b_musuan,
+            "is_staff": True,
+            "verification_status": "VERIFIED",
+            "mobile_number": "+63 917 111 0003"
+        }
+    )
+    musuan_admin.barangay = b_musuan
+    musuan_admin.set_password("Password123!")
+    musuan_admin.save()
+
+    # Backwards compatibility alias accounts
+    legacy_admin, _ = User.objects.get_or_create(
+        email="admin.sanjose@kasandigan.gov.ph",
+        defaults={
+            "first_name": "Hon. Roberto",
+            "last_name": "Alvarez",
+            "role": "BARANGAY_ADMIN",
+            "barangay": b_southpob,
+            "is_staff": True,
+            "verification_status": "VERIFIED",
+            "mobile_number": "+63 917 111 0001"
+        }
+    )
+    legacy_admin.barangay = b_southpob
+    legacy_admin.set_password("Password123!")
+    legacy_admin.save()
+
+    legacy_staff, _ = User.objects.get_or_create(
         email="staff.sanjose@kasandigan.gov.ph",
         defaults={
             "first_name": "Corazon",
             "last_name": "Villanueva",
             "role": "BARANGAY_STAFF",
-            "barangay": b_sanjose,
+            "barangay": b_southpob,
             "verification_status": "VERIFIED",
             "mobile_number": "+63 917 111 0002"
         }
     )
-    b_staff.set_password("Password123!")
-    b_staff.save()
+    legacy_staff.barangay = b_southpob
+    legacy_staff.set_password("Password123!")
+    legacy_staff.save()
 
-    # Verified Residents (San Jose)
+    # Verified Residents (South Poblacion, Maramag)
     maria, _ = User.objects.get_or_create(
         email="maria.santos@example.com",
         defaults={
             "first_name": "Maria",
             "last_name": "Santos",
             "role": "RESIDENT",
-            "barangay": b_sanjose,
-            "zone": "Zone 2 - Centro",
+            "barangay": b_southpob,
+            "zone": "Purok 2 - Centro",
             "verification_status": "VERIFIED",
             "mobile_number": "+63 917 222 1001",
-            "bio": "Local sari-sari store owner and mother of two. Glad to support our barangay community."
+            "bio": "Local sari-sari store owner and mother of two in South Poblacion. Glad to support our Maramag community."
         }
     )
+    maria.barangay = b_southpob
+    maria.zone = "Purok 2 - Centro"
     maria.set_password("Password123!")
     maria.save()
 
@@ -182,16 +433,18 @@ def run_seed():
             "first_name": "Juan",
             "last_name": "Dela Cruz",
             "role": "RESIDENT",
-            "barangay": b_sanjose,
-            "zone": "Zone 2 - Centro",
+            "barangay": b_southpob,
+            "zone": "Purok 2 - Centro",
             "verification_status": "VERIFIED",
             "mobile_number": "+63 917 222 1002",
-            "bio": "IT technician and hobbyist electronics repairer. Available on weekends and evenings.",
+            "bio": "IT technician and electronics repairer near Maramag Central. Available on weekends and evenings.",
             "completed_assistance_count": 14,
             "rating_average": 4.90,
             "rating_count": 12
         }
     )
+    juan.barangay = b_southpob
+    juan.zone = "Purok 2 - Centro"
     juan.set_password("Password123!")
     juan.save()
 
@@ -201,16 +454,18 @@ def run_seed():
             "first_name": "Elena",
             "last_name": "Reyes",
             "role": "RESIDENT",
-            "barangay": b_sanjose,
-            "zone": "Zone 3 - Greenwoods",
+            "barangay": b_southpob,
+            "zone": "Purok 4 - Municipal Hall",
             "verification_status": "VERIFIED",
             "mobile_number": "+63 917 222 1003",
-            "bio": "Retired primary school teacher. Happy to tutor elementary children in reading and arithmetic.",
+            "bio": "Retired primary school teacher in Maramag. Happy to tutor elementary children in reading and arithmetic.",
             "completed_assistance_count": 8,
             "rating_average": 5.00,
             "rating_count": 8
         }
     )
+    elena.barangay = b_southpob
+    elena.zone = "Purok 4 - Municipal Hall"
     elena.set_password("Password123!")
     elena.save()
 
@@ -220,16 +475,18 @@ def run_seed():
             "first_name": "Cardo",
             "last_name": "Dalisay",
             "role": "RESIDENT",
-            "barangay": b_sanjose,
-            "zone": "Zone 1 - Riverside",
+            "barangay": b_southpob,
+            "zone": "Purok 1 - Riverside",
             "verification_status": "VERIFIED",
             "mobile_number": "+63 917 222 1004",
-            "bio": "Experienced carpenter and home handyman. Reliable tool owner with motorized trike.",
+            "bio": "Experienced carpenter and home handyman in Maramag. Reliable tool owner with motorized multicab.",
             "completed_assistance_count": 21,
             "rating_average": 4.85,
             "rating_count": 18
         }
     )
+    cardo.barangay = b_southpob
+    cardo.zone = "Purok 1 - Riverside"
     cardo.set_password("Password123!")
     cardo.save()
 
@@ -239,15 +496,36 @@ def run_seed():
             "first_name": "Pedro",
             "last_name": "Penduko",
             "role": "RESIDENT",
-            "barangay": b_sanjose,
-            "zone": "Zone 4 - Manggahan",
+            "barangay": b_southpob,
+            "zone": "Purok 5 - Public Market",
             "verification_status": "PENDING_VERIFICATION",
             "mobile_number": "+63 917 222 1005",
-            "bio": "New resident in Zone 4. Awaiting barangay hall confirmation."
+            "bio": "New resident near Maramag Public Market. Awaiting South Poblacion barangay hall confirmation."
         }
     )
+    pedro.barangay = b_southpob
+    pedro.zone = "Purok 5 - Public Market"
     pedro.set_password("Password123!")
     pedro.save()
+
+    # Resident in Barangay Musuan (CMU Campus)
+    arnel, _ = User.objects.get_or_create(
+        email="arnel.bautista@example.com",
+        defaults={
+            "first_name": "Arnel",
+            "last_name": "Bautista",
+            "role": "RESIDENT",
+            "barangay": b_musuan,
+            "zone": "CMU Faculty Village",
+            "verification_status": "VERIFIED",
+            "mobile_number": "+63 917 222 1006",
+            "bio": "CMU agricultural engineering graduate and small engine mechanic in Musuan."
+        }
+    )
+    arnel.barangay = b_musuan
+    arnel.zone = "CMU Faculty Village"
+    arnel.set_password("Password123!")
+    arnel.save()
 
     # Assign skills and availability schedules to helpers
     # Juan: Computer Repair & Smartphone
@@ -312,18 +590,18 @@ def run_seed():
 
     # Request 1: Open request from Maria looking for Computer Repair
     req1, _ = AssistanceRequest.objects.get_or_create(
-        title="Desktop computer won't turn on for online classes",
+        title="Desktop computer won't turn on for CMU online classes",
         requester=maria,
-        barangay=b_sanjose,
+        barangay=b_southpob,
         defaults={
             "category": skill_map["Computer Repair"].category,
             "required_skill": skill_map["Computer Repair"],
             "preferred_date": today + timedelta(days=2),
             "preferred_time": "2:00 PM Afternoon",
-            "zone": "Zone 2 - Centro",
+            "zone": "Purok 2 - Centro",
             "urgency": "HIGH",
             "status": "MATCHED",
-            "description": "My daughter's study computer has a power issue. Fans spin for a second then shut down. Need someone who knows PC power supplies or motherboard troubleshooting."
+            "description": "My daughter's study computer has a power issue. Fans spin for a second then shut down. Need someone in Maramag who knows PC power supplies or motherboard troubleshooting."
         }
     )
     RuleBasedMatchingService.find_and_rank_helpers(req1)
@@ -332,13 +610,13 @@ def run_seed():
     req2, _ = AssistanceRequest.objects.get_or_create(
         title="Fix broken wooden dining chair and shelf latch",
         requester=maria,
-        barangay=b_sanjose,
+        barangay=b_southpob,
         defaults={
             "category": skill_map["Carpentry"].category,
             "required_skill": skill_map["Carpentry"],
             "preferred_date": today - timedelta(days=4),
             "preferred_time": "Morning",
-            "zone": "Zone 2 - Centro",
+            "zone": "Purok 2 - Centro",
             "urgency": "MEDIUM",
             "status": "COMPLETED",
             "assigned_helper": cardo,
@@ -350,72 +628,72 @@ def run_seed():
     Rating.objects.get_or_create(
         request=req2,
         defaults={
-            "barangay": b_sanjose,
+            "barangay": b_southpob,
             "requester": maria,
             "helper": cardo,
             "score": 5,
-            "review": "Kuya Cardo was very punctual and brought all his own wood glue and clamps! The chairs are solid now. Highly recommended!"
+            "review": "Kuya Cardo was very punctual and brought all his own wood glue and clamps! The chairs are solid now. Daghang salamat!"
         }
     )
 
     # 5. Announcements
     Announcement.objects.get_or_create(
-        barangay=b_sanjose,
-        title="Community Clean-up & Oplan Linis Drive this Saturday",
+        barangay=b_southpob,
+        title="Community Clean-up & Oplan Linis Drive along Sayre Highway",
         defaults={
             "author": b_admin,
             "priority": "IMPORTANT",
             "is_pinned": True,
-            "content": "All residents are invited to join the barangay-wide declogging of drainage canals along Zone 1 and Zone 2 starting at 7:00 AM. Refreshments will be provided at the Barangay Hall."
+            "content": "All South Poblacion residents are invited to join the barangay-wide declogging of drainage canals along Purok 1 and Purok 6 starting at 7:00 AM. Refreshments will be provided at the South Poblacion Barangay Hall."
         }
     )
 
     Announcement.objects.get_or_create(
-        barangay=b_sanjose,
-        title="Barangay Health Center Vaccination Schedule for Seniors",
+        barangay=b_southpob,
+        title="Maramag RHU Vaccination Schedule for Senior Citizens",
         defaults={
             "author": b_staff,
             "priority": "NORMAL",
             "is_pinned": False,
-            "content": "Free flu and pneumonia vaccinations will be administered on Wednesday and Thursday from 8:00 AM to 3:00 PM. Please bring your senior citizen IDs."
+            "content": "Free flu and pneumonia vaccinations will be administered at the Barangay Health Center on Wednesday and Thursday from 8:00 AM to 3:00 PM. Please bring your senior citizen OSCA IDs."
         }
     )
 
     # 6. Community Resources
     Resource.objects.get_or_create(
-        barangay=b_sanjose,
+        barangay=b_southpob,
         name="12-Foot Heavy Duty Aluminum Folding Ladder",
         defaults={
             "owner": cardo,
             "category": "TOOLS",
             "condition": "EXCELLENT",
-            "zone": "Zone 1 - Riverside",
+            "zone": "Purok 1 - Riverside",
             "status": "AVAILABLE",
-            "description": "Multi-position Werner ladder. Sturdy and safe for roof cleaning or painting."
+            "description": "Multi-position Werner ladder. Sturdy and safe for roof cleaning or tree trimming."
         }
     )
 
     Resource.objects.get_or_create(
-        barangay=b_sanjose,
+        barangay=b_southpob,
         name="Makita Impact Drill with Masonry Bit Set",
         defaults={
             "owner": juan,
             "category": "TOOLS",
             "condition": "GOOD",
-            "zone": "Zone 2 - Centro",
+            "zone": "Purok 2 - Centro",
             "status": "AVAILABLE",
             "description": "Corded drill with various drill bits for concrete, wood, and metal mounting."
         }
     )
 
     Resource.objects.get_or_create(
-        barangay=b_sanjose,
+        barangay=b_southpob,
         name="Set of 10 Plastic Folding Event Chairs",
         defaults={
             "owner": maria,
             "category": "EVENT_EQUIPMENT",
             "condition": "GOOD",
-            "zone": "Zone 2 - Centro",
+            "zone": "Purok 2 - Centro",
             "status": "AVAILABLE",
             "description": "Clean white monoblock folding chairs suitable for small family gatherings."
         }
@@ -423,16 +701,16 @@ def run_seed():
 
     # 7. Sample Moderation Report
     Report.objects.get_or_create(
-        barangay=b_sanjose,
+        barangay=b_southpob,
         reporter=maria,
         report_type="SPAM",
         defaults={
-            "description": "Suspicious anonymous account sending unrelated commercial promotional links through chat.",
+            "description": "Suspicious anonymous account sending commercial promotional links through chat.",
             "status": "PENDING"
         }
     )
 
-    print("Database successfully seeded with realistic Philippine barangay multi-tenant data!")
+    print(f"Database successfully seeded with all {len(maramag_barangays_data)} official Barangays of Maramag, Bukidnon!")
 
 if __name__ == '__main__':
     run_seed()

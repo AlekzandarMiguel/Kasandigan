@@ -8,9 +8,9 @@ class Barangay(models.Model):
 
     name = models.CharField(max_length=150)
     code = models.SlugField(max_length=100, unique=True)
-    municipality_city = models.CharField(max_length=150)
-    province = models.CharField(max_length=150)
-    region = models.CharField(max_length=100, default='National Capital Region')
+    municipality_city = models.CharField(max_length=150, default='Maramag')
+    province = models.CharField(max_length=150, default='Bukidnon')
+    region = models.CharField(max_length=100, default='Region X - Northern Mindanao')
     contact_number = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')

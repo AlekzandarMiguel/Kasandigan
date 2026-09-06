@@ -180,7 +180,7 @@ export const RegisterPage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-emerald-900 mb-1">Zone / Purok</label>
+              <label className="block text-xs font-bold text-emerald-900 mb-1">Purok / Sitio</label>
               {zones.length > 0 ? (
                 <select
                   required
@@ -198,7 +198,7 @@ export const RegisterPage = () => {
                   required
                   value={formData.zone}
                   onChange={(e) => setFormData({ ...formData, zone: e.target.value })}
-                  placeholder="e.g. Zone 1 / Purok Central"
+                  placeholder="e.g. Purok 1 / Sitio Musuan"
                   className="w-full text-sm px-3 py-2 rounded-xl border border-emerald-200 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
                 />
               )}

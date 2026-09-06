@@ -15,23 +15,23 @@ class KasandiganCoreTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-        # Create two isolated barangays (Tenants)
+        # Create two isolated barangays (Tenants in Maramag, Bukidnon)
         self.barangay_a = Barangay.objects.create(
-            name="Barangay San Jose",
-            code="san-jose",
-            municipality_city="Pasig City",
-            province="Metro Manila",
+            name="Barangay South Poblacion",
+            code="south-poblacion",
+            municipality_city="Maramag",
+            province="Bukidnon",
             status="ACTIVE",
-            zones=["Zone 1", "Zone 2", "Zone 3"]
+            zones=["Purok 1", "Purok 2", "Purok 3"]
         )
 
         self.barangay_b = Barangay.objects.create(
-            name="Barangay Poblacion",
-            code="poblacion",
-            municipality_city="Makati City",
-            province="Metro Manila",
+            name="Barangay Musuan",
+            code="musuan",
+            municipality_city="Maramag",
+            province="Bukidnon",
             status="ACTIVE",
-            zones=["Poblacion East", "Poblacion West"]
+            zones=["Purok 1", "Purok 2", "Sitio Sayre"]
         )
 
         # Create Platform Admin
@@ -44,10 +44,10 @@ class KasandiganCoreTests(TestCase):
 
         # Create Barangay Admin for Barangay A
         self.admin_a = User.objects.create_user(
-            email="admin.sanjose@kasandigan.gov.ph",
+            email="admin.southpoblacion@kasandigan.gov.ph",
             password="Password123!",
             first_name="Admin",
-            last_name="SanJose",
+            last_name="SouthPoblacion",
             role="BARANGAY_ADMIN",
             barangay=self.barangay_a,
             verification_status="VERIFIED"

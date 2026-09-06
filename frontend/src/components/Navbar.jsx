@@ -73,7 +73,7 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
             {user?.barangay_details ? (
               <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>{user.barangay_details.name}</span>
+                <span>{user.barangay_details.name}, Maramag</span>
                 {user.zone && (
                   <span className="text-slate-400 font-normal hidden sm:inline">
                     • {user.zone}
@@ -83,7 +83,10 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
             ) : (
               <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
                 <Shield className="w-4 h-4 text-indigo-600" />
-                <span>Kasandigan Global Platform Console</span>
+                <span>LGU Maramag Municipal Command Center</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 hidden sm:inline">
+                  Bukidnon
+                </span>
               </div>
             )}
           </div>

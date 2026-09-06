@@ -62,7 +62,7 @@ export const VolunteerCertificatePage = () => {
             Republic of the Philippines
           </div>
           <div className="text-xs font-semibold text-slate-600">
-            Province of {certData.province} • City / Municipality of {certData.city}
+            Province of {certData.province} • Municipality of {certData.city}
           </div>
           <div className="text-lg font-black text-emerald-950 uppercase tracking-wide">
             BARANGAY {certData.barangay_name}

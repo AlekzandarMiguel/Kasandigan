@@ -11,12 +11,12 @@ export const BarangaysManagementPage = () => {
   const [form, setForm] = useState({
     name: '',
     code: '',
-    municipality_city: '',
-    province: '',
-    region: 'National Capital Region',
+    municipality_city: 'Maramag',
+    province: 'Bukidnon',
+    region: 'Region X - Northern Mindanao',
     contact_number: '',
     email: '',
-    zones: 'Zone 1, Zone 2, Zone 3',
+    zones: 'Purok 1, Purok 2, Purok 3, Purok 4, Purok 5',
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -51,12 +51,12 @@ export const BarangaysManagementPage = () => {
       setForm({
         name: '',
         code: '',
-        municipality_city: '',
-        province: '',
-        region: 'National Capital Region',
+        municipality_city: 'Maramag',
+        province: 'Bukidnon',
+        region: 'Region X - Northern Mindanao',
         contact_number: '',
         email: '',
-        zones: 'Zone 1, Zone 2, Zone 3',
+        zones: 'Purok 1, Purok 2, Purok 3, Purok 4, Purok 5',
       });
       fetchBarangays();
     } catch (err) {
@@ -179,7 +179,7 @@ export const BarangaysManagementPage = () => {
                       name: e.target.value,
                       code: e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
                     })}
-                    placeholder="e.g. Barangay San Antonio"
+                    placeholder="e.g. Barangay Dagumba-an"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300"
                   />
                 </div>
@@ -190,7 +190,7 @@ export const BarangaysManagementPage = () => {
                     required
                     value={form.code}
                     onChange={(e) => setForm({ ...form, code: e.target.value })}
-                    placeholder="e.g. san-antonio"
+                    placeholder="e.g. dagumbaan"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 font-mono"
                   />
                 </div>
@@ -204,7 +204,7 @@ export const BarangaysManagementPage = () => {
                     required
                     value={form.municipality_city}
                     onChange={(e) => setForm({ ...form, municipality_city: e.target.value })}
-                    placeholder="e.g. Pasig City"
+                    placeholder="e.g. Maramag"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300"
                   />
                 </div>
@@ -215,7 +215,7 @@ export const BarangaysManagementPage = () => {
                     required
                     value={form.province}
                     onChange={(e) => setForm({ ...form, province: e.target.value })}
-                    placeholder="e.g. Metro Manila"
+                    placeholder="e.g. Bukidnon"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300"
                   />
                 </div>
@@ -228,7 +228,7 @@ export const BarangaysManagementPage = () => {
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="info@barangay.gov.ph"
+                    placeholder="info@maramag.gov.ph"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300"
                   />
                 </div>
@@ -238,7 +238,7 @@ export const BarangaysManagementPage = () => {
                     type="text"
                     value={form.contact_number}
                     onChange={(e) => setForm({ ...form, contact_number: e.target.value })}
-                    placeholder="+63 2 8..."
+                    placeholder="+63 88 356 ...."
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300"
                   />
                 </div>
@@ -246,13 +246,13 @@ export const BarangaysManagementPage = () => {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Zones / Puroks (comma separated)
+                  Puroks / Sitios (comma separated)
                 </label>
                 <input
                   type="text"
                   value={form.zones}
                   onChange={(e) => setForm({ ...form, zones: e.target.value })}
-                  placeholder="Zone 1, Zone 2, Zone 3, Purok Riverside"
+                  placeholder="Purok 1, Purok 2, Purok 3, Sitio Sayre"
                   className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300"
                 />
               </div>

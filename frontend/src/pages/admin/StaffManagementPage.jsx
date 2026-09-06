@@ -175,7 +175,7 @@ export const StaffManagementPage = () => {
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="staff@sanjose-pasig.gov.ph"
+                  placeholder="staff@maramag.gov.ph"
                   className="w-full text-sm px-3 py-2 rounded-xl border border-slate-300"
                 />
               </div>

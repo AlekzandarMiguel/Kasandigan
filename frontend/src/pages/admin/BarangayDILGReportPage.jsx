@@ -103,7 +103,7 @@ export const BarangayDILGReportPage = () => {
             Republic of the Philippines • Department of the Interior and Local Government
           </div>
           <div className="text-xs font-semibold text-slate-700">
-            Province of {barangay.province} • City of {barangay.city}
+            Province of {barangay.province} • Municipality of {barangay.city}
           </div>
           <div className="text-xl font-black text-slate-900 uppercase">
             BARANGAY {barangay.name} (LGU Code: {barangay.code})

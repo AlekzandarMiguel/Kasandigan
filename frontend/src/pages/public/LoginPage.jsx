@@ -53,25 +53,25 @@ export const LoginPage = () => {
 
         {/* Quick Autofill Buttons */}
         <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-          <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Demo One-Click Fill</div>
+          <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Demo One-Click Fill (Maramag)</div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <button
               type="button"
               onClick={() => autofill('platform.admin@kasandigan.gov.ph')}
               className="px-2 py-1.5 bg-white hover:bg-emerald-50 border border-slate-200 rounded-lg text-slate-700 font-medium flex items-center gap-1 truncate text-left"
             >
-              <Building2 className="w-3 h-3 text-indigo-600 shrink-0" /> Platform Admin
+              <Building2 className="w-3 h-3 text-indigo-600 shrink-0" /> LGU Maramag Admin
             </button>
             <button
               type="button"
-              onClick={() => autofill('admin.sanjose@kasandigan.gov.ph')}
+              onClick={() => autofill('admin.southpoblacion@kasandigan.gov.ph')}
               className="px-2 py-1.5 bg-white hover:bg-emerald-50 border border-slate-200 rounded-lg text-slate-700 font-medium flex items-center gap-1 truncate text-left"
             >
-              <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" /> Brgy Admin
+              <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" /> Brgy Admin (Poblacion)
             </button>
             <button
               type="button"
-              onClick={() => autofill('staff.sanjose@kasandigan.gov.ph')}
+              onClick={() => autofill('staff.southpoblacion@kasandigan.gov.ph')}
               className="px-2 py-1.5 bg-white hover:bg-emerald-50 border border-slate-200 rounded-lg text-slate-700 font-medium flex items-center gap-1 truncate text-left"
             >
               <UserCheck className="w-3 h-3 text-teal-600 shrink-0" /> Brgy Staff
