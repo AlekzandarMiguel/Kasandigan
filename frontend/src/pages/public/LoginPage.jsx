@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HeartHandshake, Lock, Mail, ArrowRight, Building2, ShieldCheck, UserCheck, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import Logo from '../../components/Logo';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -38,9 +39,7 @@ export const LoginPage = () => {
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-3xl border border-slate-200 shadow-xl">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-600/30">
-            <HeartHandshake className="w-7 h-7" />
-          </div>
+          <Logo size="xl" className="mx-auto mb-3" />
           <h2 className="text-2xl font-black text-slate-900">Welcome Back</h2>
           <p className="text-xs text-slate-500 mt-1">Sign in to your Kasandigan account</p>
         </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HeartHandshake, User, Mail, Phone, Lock, MapPin, ArrowRight, ShieldCheck, FileCheck, GraduationCap } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import Logo from '../../components/Logo';
 import api from '../../services/api';
 
 export const RegisterPage = () => {
@@ -88,9 +89,7 @@ export const RegisterPage = () => {
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-xl w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl border border-slate-200 shadow-xl">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-600/30">
-            <HeartHandshake className="w-7 h-7" />
-          </div>
+          <Logo size="xl" className="mx-auto mb-3" />
           <div className="inline-block px-3 py-1 bg-emerald-50 text-emerald-800 text-[11px] font-bold rounded-full mb-1">
             Municipality of Maramag, Bukidnon
           </div>
