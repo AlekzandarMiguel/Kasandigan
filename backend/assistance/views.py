@@ -369,32 +369,43 @@ class AssistanceInvitationViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def accept(self, request, pk=None):
-        invitation = self.get_object()
-        if invitation.helper != request.user:
-            return Response({'detail': 'Only the invited helper can accept.'}, status=status.HTTP_403_FORBIDDEN)
+        from django.db import transaction
+        with transaction.atomic():
+            invitation = AssistanceInvitation.objects.select_for_update().filter(pk=pk).first()
+            if not invitation:
+                return Response({'detail': 'Invitation not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        req_obj = invitation.request
-        if req_obj.status in ['ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']:
-            return Response({'detail': f"Request is already {req_obj.status.lower()}."}, status=status.HTTP_400_BAD_REQUEST)
+            if invitation.helper != request.user:
+                return Response({'detail': 'Only the invited helper can accept.'}, status=status.HTTP_403_FORBIDDEN)
 
-        invitation.status = 'ACCEPTED'
-        invitation.responded_at = timezone.now()
-        invitation.save(update_fields=['status', 'responded_at'])
+            req_obj = AssistanceRequest.objects.select_for_update().filter(id=invitation.request_id).first()
+            if not req_obj:
+                return Response({'detail': 'Associated assistance request not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Update Request status and assign helper
-        req_obj.status = 'ACCEPTED'
-        req_obj.assigned_helper = invitation.helper
-        req_obj.save(update_fields=['status', 'assigned_helper'])
+            if req_obj.status in ['ACCEPTED', 'EN_ROUTE', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']:
+                return Response(
+                    {'detail': f"Request has already been processed or accepted by another helper ({req_obj.status.lower()})."},
+                    status=status.HTTP_409_CONFLICT
+                )
 
-        # Create AssistanceTransaction
-        AssistanceTransaction.objects.get_or_create(
-            request=req_obj,
-            defaults={
-                'barangay': req_obj.barangay,
-                'requester': req_obj.requester,
-                'helper': invitation.helper
-            }
-        )
+            invitation.status = 'ACCEPTED'
+            invitation.responded_at = timezone.now()
+            invitation.save(update_fields=['status', 'responded_at'])
+
+            # Update Request status and assign helper
+            req_obj.status = 'ACCEPTED'
+            req_obj.assigned_helper = invitation.helper
+            req_obj.save(update_fields=['status', 'assigned_helper'])
+
+            # Create AssistanceTransaction
+            AssistanceTransaction.objects.get_or_create(
+                request=req_obj,
+                defaults={
+                    'barangay': req_obj.barangay,
+                    'requester': req_obj.requester,
+                    'helper': invitation.helper
+                }
+            )
 
         # Notify requester
         NotificationService.send(
@@ -507,53 +518,61 @@ class AssistanceWorkflowViewSet(viewsets.ViewSet):
 
     @action(detail=True, methods=['post'])
     def complete(self, request, pk=None):
-        req_obj = AssistanceRequest.objects.filter(id=pk).first()
-        if not req_obj:
-            return Response({'detail': 'Request not found.'}, status=status.HTTP_404_NOT_FOUND)
+        from django.db import transaction
+        with transaction.atomic():
+            req_obj = AssistanceRequest.objects.select_for_update().filter(id=pk).first()
+            if not req_obj:
+                return Response({'detail': 'Request not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        if request.user not in [req_obj.requester, req_obj.assigned_helper]:
-            return Response({'detail': 'Not authorized to complete this assistance.'}, status=status.HTTP_403_FORBIDDEN)
+            if request.user not in [req_obj.requester, req_obj.assigned_helper]:
+                return Response({'detail': 'Not authorized to complete this assistance.'}, status=status.HTTP_403_FORBIDDEN)
 
-        if req_obj.status == 'COMPLETED':
-            return Response({'detail': 'This assistance has already been completed.'}, status=status.HTTP_400_BAD_REQUEST)
+            if req_obj.status == 'COMPLETED':
+                return Response({'detail': 'This assistance has already been completed.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        req_obj.status = 'COMPLETED'
-        req_obj.completed_at = timezone.now()
-        proof_url = request.data.get('completion_proof_url', '').strip()
-        if proof_url:
-            from urllib.parse import urlparse
-            parsed = urlparse(proof_url)
-            if parsed.scheme not in ('http', 'https'):
-                return Response({'detail': 'Invalid completion proof URL. Only http:// or https:// URLs are allowed.'}, status=status.HTTP_400_BAD_REQUEST)
+            req_obj.status = 'COMPLETED'
+            req_obj.completed_at = timezone.now()
+            proof_url = request.data.get('completion_proof_url', '').strip()
+            if proof_url:
+                from urllib.parse import urlparse
+                parsed = urlparse(proof_url)
+                if parsed.scheme not in ('http', 'https'):
+                    return Response({'detail': 'Invalid completion proof URL. Only http:// or https:// URLs are allowed.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        notes = (request.data.get('completion_notes') or request.data.get('notes') or '').strip()
-        if notes:
-            from django.utils.html import strip_tags
-            notes = strip_tags(notes).strip()
+            notes = (request.data.get('completion_notes') or request.data.get('notes') or '').strip()
+            if notes:
+                from django.utils.html import strip_tags
+                notes = strip_tags(notes).strip()
 
-        update_fields = ['status', 'completed_at']
-        if proof_url:
-            req_obj.completion_proof_url = proof_url
-            update_fields.append('completion_proof_url')
-        if notes:
-            req_obj.completion_notes = notes
-            update_fields.append('completion_notes')
-        req_obj.save(update_fields=update_fields)
+            update_fields = ['status', 'completed_at']
+            if proof_url:
+                req_obj.completion_proof_url = proof_url
+                update_fields.append('completion_proof_url')
+            if notes:
+                req_obj.completion_notes = notes
+                update_fields.append('completion_notes')
+            req_obj.save(update_fields=update_fields)
 
-        # Update transaction
-        tx, _ = AssistanceTransaction.objects.get_or_create(
-            request=req_obj,
-            defaults={'barangay': req_obj.barangay, 'requester': req_obj.requester, 'helper': req_obj.assigned_helper}
-        )
-        tx.completed_at = timezone.now()
-        tx.save(update_fields=['completed_at'])
+            # Release linked equipment if any
+            if req_obj.linked_resource:
+                resource = req_obj.linked_resource
+                resource.status = 'AVAILABLE'
+                resource.save(update_fields=['status'])
 
-        # Increment helper's completed_assistance_count
-        if req_obj.assigned_helper:
-            helper = req_obj.assigned_helper
-            helper.completed_assistance_count = models.F('completed_assistance_count') + 1
-            helper.save(update_fields=['completed_assistance_count'])
-            helper.refresh_from_db()
+            # Update transaction
+            tx, _ = AssistanceTransaction.objects.get_or_create(
+                request=req_obj,
+                defaults={'barangay': req_obj.barangay, 'requester': req_obj.requester, 'helper': req_obj.assigned_helper}
+            )
+            tx.completed_at = timezone.now()
+            tx.save(update_fields=['completed_at'])
+
+            # Increment helper's completed_assistance_count
+            if req_obj.assigned_helper:
+                helper = req_obj.assigned_helper
+                helper.completed_assistance_count = models.F('completed_assistance_count') + 1
+                helper.save(update_fields=['completed_assistance_count'])
+                helper.refresh_from_db()
 
             # Notify requester to submit a rating & review
             NotificationService.send(

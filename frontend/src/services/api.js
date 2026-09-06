@@ -21,11 +21,51 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor: handle token refresh on 401
+// Helper to extract a friendly error message from DRF responses
+export const extractErrorMessage = (error) => {
+  if (!error.response) {
+    return 'Unable to connect to Kasandigan server. Please check your internet connection.';
+  }
+  const status = error.response.status;
+  const data = error.response.data;
+
+  if (status === 429) {
+    return data?.detail || 'Rate limit reached. You are making requests too quickly, please wait a moment.';
+  }
+
+  if (status === 403) {
+    return data?.detail || 'Access restricted. You do not have permission for this barangay action.';
+  }
+
+  if (status === 404) {
+    return data?.detail || 'The requested record was not found.';
+  }
+
+  if (status >= 500) {
+    return 'The server encountered an issue processing this request. Please try again shortly.';
+  }
+
+  if (typeof data === 'object' && data !== null) {
+    if (data.detail) return String(data.detail);
+    if (data.message) return String(data.message);
+    const firstVal = Object.values(data)[0];
+    if (Array.isArray(firstVal)) return String(firstVal[0]);
+    if (typeof firstVal === 'string') return firstVal;
+  }
+
+  return error.message || 'An unexpected error occurred.';
+};
+
+// Response interceptor: handle token refresh on 401 & normalize errors
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Attach human-friendly message directly to the error object
+    error.userMessage = extractErrorMessage(error);
+
+    // Handle token refresh on 401 Unauthorized
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = localStorage.getItem('kasandigan_refresh_token');
@@ -46,6 +86,12 @@ api.interceptors.response.use(
           if (window.location.pathname !== '/login') {
             window.location.href = '/login';
           }
+        }
+      } else {
+        localStorage.removeItem('kasandigan_access_token');
+        localStorage.removeItem('kasandigan_user');
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
         }
       }
     }
