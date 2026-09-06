@@ -29,20 +29,30 @@ import ProfileSettingsPage from './pages/resident/ProfileSettingsPage';
 // Staff Pages
 import StaffDashboard from './pages/staff/StaffDashboard';
 import ResidentVerificationsPage from './pages/staff/ResidentVerificationsPage';
+import StaffResidentsDirectoryPage from './pages/staff/StaffResidentsDirectoryPage';
+import StaffRequestsTriagePage from './pages/staff/StaffRequestsTriagePage';
 import StaffReportsPage from './pages/staff/StaffReportsPage';
 import StaffAnnouncementsPage from './pages/staff/StaffAnnouncementsPage';
 
 // Barangay Admin Pages
 import BarangayDashboard from './pages/admin/BarangayDashboard';
+import BarangayResidentsPage from './pages/admin/BarangayResidentsPage';
 import StaffManagementPage from './pages/admin/StaffManagementPage';
-import SkillsCategoriesPage from './pages/admin/SkillsCategoriesPage';
+import BarangayRequestsPage from './pages/admin/BarangayRequestsPage';
+import SkillsManagementPage from './pages/admin/SkillsManagementPage';
+import CategoriesManagementPage from './pages/admin/CategoriesManagementPage';
+import BarangayReportsPage from './pages/admin/BarangayReportsPage';
+import BarangayAnnouncementsPage from './pages/admin/BarangayAnnouncementsPage';
 import ActivityLogsPage from './pages/admin/ActivityLogsPage';
+import BarangaySettingsPage from './pages/admin/BarangaySettingsPage';
 
 // Platform Admin Pages
 import PlatformDashboard from './pages/platform/PlatformDashboard';
 import BarangaysManagementPage from './pages/platform/BarangaysManagementPage';
 import PlatformUsersPage from './pages/platform/PlatformUsersPage';
 import PlatformReportsPage from './pages/platform/PlatformReportsPage';
+import PlatformActivityLogsPage from './pages/platform/PlatformActivityLogsPage';
+import PlatformSettingsPage from './pages/platform/PlatformSettingsPage';
 
 // Loading Spinner
 import LoadingSpinner from './components/LoadingSpinner';
@@ -117,8 +127,8 @@ export function App() {
             >
               <Route path="/staff/dashboard" element={<StaffDashboard />} />
               <Route path="/staff/verifications" element={<ResidentVerificationsPage />} />
-              <Route path="/staff/residents" element={<ResidentVerificationsPage />} />
-              <Route path="/staff/requests" element={<AssistanceRequestsList />} />
+              <Route path="/staff/residents" element={<StaffResidentsDirectoryPage />} />
+              <Route path="/staff/requests" element={<StaffRequestsTriagePage />} />
               <Route path="/staff/reports" element={<StaffReportsPage />} />
               <Route path="/staff/announcements" element={<StaffAnnouncementsPage />} />
             </Route>
@@ -132,15 +142,15 @@ export function App() {
               }
             >
               <Route path="/admin/dashboard" element={<BarangayDashboard />} />
-              <Route path="/admin/residents" element={<ResidentVerificationsPage />} />
+              <Route path="/admin/residents" element={<BarangayResidentsPage />} />
               <Route path="/admin/staff" element={<StaffManagementPage />} />
-              <Route path="/admin/requests" element={<AssistanceRequestsList />} />
-              <Route path="/admin/skills" element={<SkillsCategoriesPage />} />
-              <Route path="/admin/categories" element={<SkillsCategoriesPage />} />
-              <Route path="/admin/reports" element={<StaffReportsPage />} />
-              <Route path="/admin/announcements" element={<StaffAnnouncementsPage />} />
+              <Route path="/admin/requests" element={<BarangayRequestsPage />} />
+              <Route path="/admin/skills" element={<SkillsManagementPage />} />
+              <Route path="/admin/categories" element={<CategoriesManagementPage />} />
+              <Route path="/admin/reports" element={<BarangayReportsPage />} />
+              <Route path="/admin/announcements" element={<BarangayAnnouncementsPage />} />
               <Route path="/admin/activity-logs" element={<ActivityLogsPage />} />
-              <Route path="/admin/settings" element={<ProfileSettingsPage />} />
+              <Route path="/admin/settings" element={<BarangaySettingsPage />} />
             </Route>
 
             {/* Platform Admin Routes */}
@@ -155,8 +165,8 @@ export function App() {
               <Route path="/platform/barangays" element={<BarangaysManagementPage />} />
               <Route path="/platform/users" element={<PlatformUsersPage />} />
               <Route path="/platform/reports" element={<PlatformReportsPage />} />
-              <Route path="/platform/activity-logs" element={<ActivityLogsPage />} />
-              <Route path="/platform/settings" element={<ProfileSettingsPage />} />
+              <Route path="/platform/activity-logs" element={<PlatformActivityLogsPage />} />
+              <Route path="/platform/settings" element={<PlatformSettingsPage />} />
             </Route>
 
             {/* Catch-all fallback */}
