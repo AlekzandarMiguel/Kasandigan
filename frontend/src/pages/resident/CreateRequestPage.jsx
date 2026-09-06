@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   HeartHandshake, ArrowLeft, Calendar, Clock, MapPin,
-  AlertTriangle, Tag, Sparkles
+  AlertTriangle, Tag, Sparkles, Users
 } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -24,6 +24,8 @@ export const CreateRequestPage = () => {
     preferred_time: 'Afternoon (1:00 PM - 5:00 PM)',
     zone: user?.zone || '',
     urgency: 'MEDIUM',
+    helpers_needed: 1,
+    auto_dispatch: true,
     additional_notes: '',
   });
 
@@ -72,6 +74,8 @@ export const CreateRequestPage = () => {
         ...formData,
         category: Number(formData.category),
         required_skill: formData.required_skill ? Number(formData.required_skill) : null,
+        helpers_needed: Number(formData.helpers_needed || 1),
+        auto_dispatch: Boolean(formData.auto_dispatch),
       };
       const res = await api.post('/requests/', payload);
       navigate(`/requests/${res.data.id}`);
@@ -242,6 +246,44 @@ export const CreateRequestPage = () => {
                 <option value="HIGH">High - Urgent needed today/tomorrow</option>
                 <option value="EMERGENCY">Emergency / Priority</option>
               </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Volunteers / Helpers Needed
+              </label>
+              <div className="relative">
+                <Users className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={formData.helpers_needed}
+                  onChange={(e) => setFormData({ ...formData, helpers_needed: e.target.value })}
+                  className="w-full text-sm pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                />
+              </div>
+              <span className="text-[11px] text-slate-400 mt-1 block">Specify 2+ if moving heavy furniture, clearing debris, etc.</span>
+            </div>
+
+            <div className="p-3.5 bg-emerald-50/70 rounded-2xl border border-emerald-200/80 flex items-center justify-between">
+              <div>
+                <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                  Auto-Dispatch Invitations
+                </div>
+                <div className="text-[11px] text-emerald-700 mt-0.5">
+                  Immediately invite top 3 qualified helpers in your zone upon posting.
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                checked={formData.auto_dispatch}
+                onChange={(e) => setFormData({ ...formData, auto_dispatch: e.target.checked })}
+                className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500"
+              />
             </div>
           </div>
 

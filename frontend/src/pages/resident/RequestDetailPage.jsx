@@ -3,7 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   HeartHandshake, Calendar, Clock, MapPin, Tag, User,
   CheckCircle, ArrowLeft, Send, Star, AlertTriangle, ShieldCheck,
-  Award, Flag, XCircle, Play, Sparkles, MessageSquare, Image, FileText
+  Award, Flag, XCircle, Play, Sparkles, MessageSquare, Image, FileText,
+  Navigation, Wrench, ShieldAlert, Check, X, Users
 } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -13,6 +14,10 @@ import RatingModal from '../../components/RatingModal';
 import ReportModal from '../../components/ReportModal';
 import TicketChatModal from '../../components/TicketChatModal';
 import ProofOfWorkModal from '../../components/ProofOfWorkModal';
+import WorkflowStepper from '../../components/WorkflowStepper';
+import RescheduleModal from '../../components/RescheduleModal';
+import LinkEquipmentModal from '../../components/LinkEquipmentModal';
+import ReassignHelperModal from '../../components/ReassignHelperModal';
 
 export const RequestDetailPage = () => {
   const { id } = useParams();
@@ -31,6 +36,9 @@ export const RequestDetailPage = () => {
   const [reportOpen, setReportOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [proofModalOpen, setProofModalOpen] = useState(false);
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [linkEquipmentModalOpen, setLinkEquipmentModalOpen] = useState(false);
+  const [reassignModalOpen, setReassignModalOpen] = useState(false);
 
   const fetchRequestDetails = async () => {
     try {
@@ -94,6 +102,34 @@ export const RequestDetailPage = () => {
       fetchRequestDetails();
     } catch (err) {
       alert('Failed to decline invitation.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleEnRoute = async () => {
+    setActionLoading(true);
+    try {
+      await api.post(`/assistance/workflow/${id}/en_route/`);
+      setMessage('Status updated: You are now marked as En Route to the citizen!');
+      fetchRequestDetails();
+    } catch (err) {
+      alert(err.response?.data?.detail || 'Failed to update status to En Route.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRespondReschedule = async (decisionAction) => {
+    setActionLoading(true);
+    try {
+      await api.post(`/assistance/workflow/${id}/respond_reschedule/`, {
+        action: decisionAction,
+      });
+      setMessage(decisionAction === 'ACCEPT' ? 'Reschedule proposal accepted!' : 'Reschedule proposal declined.');
+      fetchRequestDetails();
+    } catch (err) {
+      alert(err.response?.data?.detail || 'Failed to respond to reschedule proposal.');
     } finally {
       setActionLoading(false);
     }
@@ -171,6 +207,12 @@ export const RequestDetailPage = () => {
                 {request.category_name}
               </span>
               <StatusBadge status={request.urgency} />
+              {request.helpers_needed > 1 && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
+                  <Users className="w-3 h-3" />
+                  {request.helpers_needed} Volunteers Needed
+                </span>
+              )}
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
               {request.title}
@@ -205,6 +247,71 @@ export const RequestDetailPage = () => {
             </button>
           </div>
         </div>
+
+        {/* Milestone Tracker Stepper */}
+        <WorkflowStepper status={request.status} hasRating={Boolean(request.has_rating)} />
+
+        {/* Pending Reschedule Proposal Banner */}
+        {request.reschedule_proposed_date && (
+          <div className="p-4 bg-amber-50 border border-amber-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
+                <Clock className="w-4 h-4 text-amber-700" />
+                <span>Reschedule Proposal Pending</span>
+              </div>
+              <p className="text-xs text-amber-800">
+                <strong>{request.reschedule_proposed_by_name || 'Counterparty'}</strong> proposed to reschedule this assistance to:
+                <span className="font-bold underline ml-1">{request.reschedule_proposed_date}</span> at <span className="font-bold underline">{request.reschedule_proposed_time}</span>.
+              </p>
+              {request.reschedule_reason && (
+                <p className="text-[11px] text-amber-700 italic">
+                  Reason: "{request.reschedule_reason}"
+                </p>
+              )}
+            </div>
+            {request.reschedule_proposed_by !== user?.id ? (
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => handleRespondReschedule('ACCEPT')}
+                  disabled={actionLoading}
+                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1"
+                >
+                  <Check className="w-3.5 h-3.5" /> Accept New Schedule
+                </button>
+                <button
+                  onClick={() => handleRespondReschedule('DECLINE')}
+                  disabled={actionLoading}
+                  className="px-3.5 py-1.5 bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1"
+                >
+                  <X className="w-3.5 h-3.5" /> Decline
+                </button>
+              </div>
+            ) : (
+              <span className="text-[11px] font-bold text-amber-700 bg-amber-100/70 px-2.5 py-1 rounded-lg self-start sm:self-center">
+                Awaiting response from other party
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Linked Barangay Equipment Card */}
+        {request.linked_resource && (
+          <div className="p-4 bg-purple-50/70 rounded-2xl border border-purple-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold shrink-0">
+                <Wrench className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-[11px] font-bold text-purple-600 uppercase tracking-wider">Barangay Equipment Borrowed for Ticket</div>
+                <div className="text-sm font-bold text-slate-900">{request.linked_resource_name}</div>
+                <div className="text-[11px] text-slate-500">Category: {request.linked_resource_category} • Auto-returns to Available upon ticket completion.</div>
+              </div>
+            </div>
+            <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-purple-200/60 text-purple-900 w-max">
+              Tool Active in Field
+            </span>
+          </div>
+        )}
 
         {/* Description & Requirements */}
         <div className="space-y-3">
@@ -274,7 +381,7 @@ export const RequestDetailPage = () => {
 
           <div className="flex flex-wrap items-center gap-2">
             {/* Ticket Secure Chat Button */}
-            {['ACCEPTED', 'IN_PROGRESS', 'COMPLETED'].includes(request.status) && (isRequester || isHelper || ['BARANGAY_STAFF', 'BARANGAY_ADMIN'].includes(user?.role)) && (
+            {['ACCEPTED', 'EN_ROUTE', 'IN_PROGRESS', 'COMPLETED'].includes(request.status) && (isRequester || isHelper || ['BARANGAY_STAFF', 'BARANGAY_ADMIN'].includes(user?.role)) && (
               <button
                 onClick={() => setChatOpen(true)}
                 className="px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5"
@@ -303,14 +410,62 @@ export const RequestDetailPage = () => {
               </div>
             )}
 
-            {/* Assistance progress controls */}
-            {request.status === 'ACCEPTED' && (isRequester || isHelper) && (
+            {/* "I am En Route" Button for Helper */}
+            {request.status === 'ACCEPTED' && isHelper && (
+              <button
+                onClick={handleEnRoute}
+                disabled={actionLoading}
+                className="px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+              >
+                <Navigation className="w-3.5 h-3.5" /> I am En Route
+              </button>
+            )}
+
+            {/* If EN_ROUTE, banner for requester / start button for helper */}
+            {request.status === 'EN_ROUTE' && isRequester && (
+              <div className="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 flex items-center gap-1.5">
+                <Navigation className="w-3.5 h-3.5 animate-bounce" /> Helper is en route!
+              </div>
+            )}
+
+            {/* Start Assistance */}
+            {(request.status === 'ACCEPTED' || request.status === 'EN_ROUTE') && (isRequester || isHelper) && (
               <button
                 onClick={handleStartAssistance}
                 disabled={actionLoading}
                 className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5"
               >
-                <Play className="w-3.5 h-3.5" /> Start Assistance
+                <Play className="w-3.5 h-3.5" /> {request.status === 'EN_ROUTE' ? 'Arrived & Start Assistance' : 'Start Assistance'}
+              </button>
+            )}
+
+            {/* Propose Reschedule button */}
+            {['ACCEPTED', 'EN_ROUTE', 'IN_PROGRESS'].includes(request.status) && (isRequester || isHelper) && !request.reschedule_proposed_date && (
+              <button
+                onClick={() => setRescheduleModalOpen(true)}
+                className="px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl border border-slate-200 transition-all flex items-center gap-1.5"
+              >
+                <Calendar className="w-3.5 h-3.5 text-slate-500" /> Reschedule
+              </button>
+            )}
+
+            {/* Borrow Equipment Button */}
+            {['ACCEPTED', 'EN_ROUTE', 'IN_PROGRESS'].includes(request.status) && (isRequester || isHelper || ['BARANGAY_STAFF', 'BARANGAY_ADMIN'].includes(user?.role)) && !request.linked_resource && (
+              <button
+                onClick={() => setLinkEquipmentModalOpen(true)}
+                className="px-3 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-50 rounded-xl border border-purple-200 transition-all flex items-center gap-1.5"
+              >
+                <Wrench className="w-3.5 h-3.5" /> Borrow Tools
+              </button>
+            )}
+
+            {/* Reassign Helper Button (Staff / Admin) */}
+            {['BARANGAY_STAFF', 'BARANGAY_ADMIN', 'PLATFORM_ADMIN'].includes(user?.role) && ['PENDING', 'ACCEPTED', 'EN_ROUTE', 'IN_PROGRESS'].includes(request.status) && (
+              <button
+                onClick={() => setReassignModalOpen(true)}
+                className="px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-50 rounded-xl border border-indigo-200 transition-all flex items-center gap-1.5"
+              >
+                <ShieldAlert className="w-3.5 h-3.5" /> Reassign
               </button>
             )}
 
@@ -335,7 +490,7 @@ export const RequestDetailPage = () => {
             )}
 
             {/* Cancel Button */}
-            {['PENDING', 'MATCHED', 'ACCEPTED'].includes(request.status) && (isRequester || user?.role in ['BARANGAY_STAFF', 'BARANGAY_ADMIN']) && (
+            {['PENDING', 'MATCHED', 'ACCEPTED', 'EN_ROUTE'].includes(request.status) && (isRequester || ['BARANGAY_STAFF', 'BARANGAY_ADMIN'].includes(user?.role)) && (
               <button
                 onClick={handleCancelRequest}
                 disabled={actionLoading}
@@ -504,6 +659,31 @@ export const RequestDetailPage = () => {
         onClose={() => setProofModalOpen(false)}
         onConfirm={handleCompleteAssistance}
         loading={actionLoading}
+      />
+
+      {/* Reschedule Proposal Modal */}
+      <RescheduleModal
+        isOpen={rescheduleModalOpen}
+        onClose={() => setRescheduleModalOpen(false)}
+        requestId={request.id}
+        onRescheduled={fetchRequestDetails}
+      />
+
+      {/* Borrow Equipment Modal */}
+      <LinkEquipmentModal
+        isOpen={linkEquipmentModalOpen}
+        onClose={() => setLinkEquipmentModalOpen(false)}
+        requestId={request.id}
+        onLinked={fetchRequestDetails}
+      />
+
+      {/* Reassign Helper Modal (Supervisor Override) */}
+      <ReassignHelperModal
+        isOpen={reassignModalOpen}
+        onClose={() => setReassignModalOpen(false)}
+        requestId={request.id}
+        currentHelperId={request.assigned_helper}
+        onReassigned={fetchRequestDetails}
       />
     </div>
   );
