@@ -1,8 +1,16 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from urllib.parse import urlparse
 from accounts.models import User, BlockedUser
 from tenants.models import Barangay
 from tenants.serializers import BarangaySerializer
+
+def validate_safe_url(value):
+    if value:
+        parsed = urlparse(value)
+        if parsed.scheme not in ('http', 'https'):
+            raise serializers.ValidationError("Only valid http:// or https:// URLs are allowed.")
+    return value
 
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.ReadOnlyField()
@@ -26,6 +34,28 @@ class UserSerializer(serializers.ModelSerializer):
             'verified_at', 'completed_assistance_count', 'rating_average',
             'rating_count', 'bayanihan_badges', 'is_active', 'created_at'
         ]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        current_user = getattr(request, 'user', None) if request else None
+
+        # Data Privacy Act (RA 10173): Shield sensitive ID proof and mask mobile numbers
+        is_self = current_user and current_user.is_authenticated and (current_user.id == instance.id)
+        is_authorized_staff = current_user and current_user.is_authenticated and (
+            current_user.role == 'PLATFORM_ADMIN' or
+            (current_user.role in ['BARANGAY_STAFF', 'BARANGAY_ADMIN'] and current_user.barangay_id == instance.barangay_id)
+        )
+
+        if not (is_self or is_authorized_staff):
+            data.pop('id_document_url', None)
+            data.pop('id_document_type', None)
+
+            raw_phone = data.get('mobile_number')
+            if raw_phone and len(raw_phone) >= 7:
+                data['mobile_number'] = raw_phone[:4] + '****' + raw_phone[-3:]
+
+        return data
 
     def get_bayanihan_badges(self, obj):
         badges = []
@@ -77,6 +107,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True, required=True)
+    id_document_url = serializers.CharField(required=False, allow_blank=True, validators=[validate_safe_url])
     barangay_id = serializers.PrimaryKeyRelatedField(
         queryset=Barangay.objects.filter(status='ACTIVE'),
         source='barangay',
@@ -130,6 +161,8 @@ class StaffCreationSerializer(serializers.ModelSerializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    id_document_url = serializers.CharField(required=False, allow_blank=True, validators=[validate_safe_url])
+
     class Meta:
         model = User
         fields = [

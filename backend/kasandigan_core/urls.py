@@ -59,13 +59,19 @@ router.register(r'resources', ResourceViewSet, basename='resource')
 router.register(r'resource-requests', ResourceRequestViewSet, basename='resource-request')
 router.register(r'activity-logs', ActivityLogViewSet, basename='activity-log')
 
+class ThrottledTokenObtainPairView(TokenObtainPairView):
+    throttle_scope = 'auth'
+
+class ThrottledTokenRefreshView(TokenRefreshView):
+    throttle_scope = 'auth'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Authentication Endpoints
     path('api/auth/register/', RegisterView.as_view(), name='auth-register'),
-    path('api/auth/login/', TokenObtainPairView.as_view(), name='auth-login'),
-    path('api/auth/refresh/', TokenRefreshView.as_view(), name='auth-refresh'),
+    path('api/auth/login/', ThrottledTokenObtainPairView.as_view(), name='auth-login'),
+    path('api/auth/refresh/', ThrottledTokenRefreshView.as_view(), name='auth-refresh'),
     path('api/auth/me/', CurrentUserView.as_view(), name='auth-me'),
     path('api/auth/change-password/', ChangePasswordView.as_view(), name='auth-change-password'),
 

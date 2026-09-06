@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils.html import strip_tags
 from ratings.models import Rating
 from assistance.models import AssistanceRequest
 
@@ -22,6 +23,9 @@ class RatingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = ['request', 'score', 'review']
+
+    def validate_review(self, value):
+        return strip_tags(value).strip() if value else ''
 
     def validate_request(self, value):
         user = self.context['request'].user

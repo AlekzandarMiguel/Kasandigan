@@ -1,8 +1,17 @@
 from rest_framework import serializers
+from urllib.parse import urlparse
+from django.utils.html import strip_tags
 from assistance.models import AssistanceRequest, AssistanceInvitation, AssistanceTransaction, TicketMessage
 from skills.serializers import AssistanceCategorySerializer, SkillSerializer
 from accounts.serializers import UserSerializer
 from resources.models import Resource
+
+def validate_safe_url(value):
+    if value:
+        parsed = urlparse(value)
+        if parsed.scheme not in ('http', 'https'):
+            raise serializers.ValidationError("Only valid http:// or https:// URLs are allowed.")
+    return value
 
 class AssistanceRequestSerializer(serializers.ModelSerializer):
     requester_name = serializers.ReadOnlyField(source='requester.full_name')
@@ -43,7 +52,6 @@ class AssistanceRequestSerializer(serializers.ModelSerializer):
         ]
 
     def get_invitation_status(self, obj):
-        # If user is viewing, return their specific invitation status if helper
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             inv = obj.invitations.filter(helper=request.user).first()
@@ -56,6 +64,7 @@ class AssistanceRequestSerializer(serializers.ModelSerializer):
 
 class AssistanceRequestCreateSerializer(serializers.ModelSerializer):
     auto_dispatch = serializers.BooleanField(write_only=True, required=False, default=False)
+    attachment_url = serializers.CharField(required=False, allow_blank=True, validators=[validate_safe_url])
 
     class Meta:
         model = AssistanceRequest
@@ -65,6 +74,21 @@ class AssistanceRequestCreateSerializer(serializers.ModelSerializer):
             'helpers_needed', 'additional_notes', 'attachment_url', 'auto_dispatch'
         ]
         read_only_fields = ['id']
+
+    def validate_title(self, value):
+        clean = strip_tags(value).strip() if value else ''
+        if not clean:
+            raise serializers.ValidationError("Title cannot be empty.")
+        return clean
+
+    def validate_description(self, value):
+        clean = strip_tags(value).strip() if value else ''
+        if not clean:
+            raise serializers.ValidationError("Description cannot be empty.")
+        return clean
+
+    def validate_additional_notes(self, value):
+        return strip_tags(value).strip() if value else ''
 
     def validate(self, attrs):
         user = self.context['request'].user
@@ -126,3 +150,9 @@ class TicketMessageSerializer(serializers.ModelSerializer):
             'sender_role', 'message', 'is_read', 'created_at'
         ]
         read_only_fields = ['id', 'request', 'sender', 'created_at']
+
+    def validate_message(self, value):
+        clean = strip_tags(value).strip() if value else ''
+        if not clean:
+            raise serializers.ValidationError("Message content cannot be empty.")
+        return clean

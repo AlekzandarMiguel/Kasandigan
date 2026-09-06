@@ -520,7 +520,17 @@ class AssistanceWorkflowViewSet(viewsets.ViewSet):
         req_obj.status = 'COMPLETED'
         req_obj.completed_at = timezone.now()
         proof_url = request.data.get('completion_proof_url', '').strip()
+        if proof_url:
+            from urllib.parse import urlparse
+            parsed = urlparse(proof_url)
+            if parsed.scheme not in ('http', 'https'):
+                return Response({'detail': 'Invalid completion proof URL. Only http:// or https:// URLs are allowed.'}, status=status.HTTP_400_BAD_REQUEST)
+
         notes = (request.data.get('completion_notes') or request.data.get('notes') or '').strip()
+        if notes:
+            from django.utils.html import strip_tags
+            notes = strip_tags(notes).strip()
+
         update_fields = ['status', 'completed_at']
         if proof_url:
             req_obj.completion_proof_url = proof_url

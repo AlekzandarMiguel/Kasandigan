@@ -18,6 +18,7 @@ from notifications.services import NotificationService
 class RegisterView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [permissions.AllowAny]
+    throttle_scope = 'auth'
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -145,10 +146,15 @@ class ResidentDirectoryViewSet(viewsets.ReadOnlyModelViewSet):
             link='/profile'
         )
 
+        client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', 'Unknown IP'))
+        if ',' in client_ip:
+            client_ip = client_ip.split(',')[0].strip()
+        doc_info = f"Doc: {resident.id_document_type or 'None'}"
+
         AuditLogger.log(
             user=request.user,
             action='ACCOUNT_VERIFICATION',
-            description=f"Resident '{resident.full_name}' status changed to {new_status} by {request.user.full_name}. Notes: {notes}",
+            description=f"Resident '{resident.full_name}' status changed to {new_status} by {request.user.full_name} from IP {client_ip}. {doc_info}. Notes: {notes}",
             target_type='User',
             target_id=str(resident.id),
             barangay=resident.barangay
@@ -156,7 +162,7 @@ class ResidentDirectoryViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response({
             'detail': f"Resident status updated to {new_status}.",
-            'resident': UserSerializer(resident).data
+            'resident': UserSerializer(resident, context={'request': request}).data
         })
 
     @action(detail=False, methods=['get'], url_path='my-certificate', permission_classes=[permissions.IsAuthenticated])
