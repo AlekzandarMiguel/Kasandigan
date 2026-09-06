@@ -134,3 +134,28 @@ class BlockedUser(models.Model):
 
     def __str__(self):
         return f"{self.blocker.full_name} blocked {self.blocked.full_name}"
+
+
+class PasswordResetOTP(models.Model):
+    email = models.EmailField()
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'password_reset_otps'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['email', 'otp']),
+        ]
+
+    def is_valid(self):
+        from django.utils import timezone
+        import datetime
+        if self.is_used:
+            return False
+        # OTP valid for 15 minutes
+        return timezone.now() <= self.created_at + datetime.timedelta(minutes=15)
+
+    def __str__(self):
+        return f"OTP for {self.email} ({self.otp})"

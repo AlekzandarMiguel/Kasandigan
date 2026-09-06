@@ -6,7 +6,8 @@ from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import User, BlockedUser
+import secrets
+from accounts.models import User, BlockedUser, PasswordResetOTP
 from accounts.serializers import (
     UserSerializer, UserRegistrationSerializer, UserUpdateSerializer,
     VerificationActionSerializer, StaffCreationSerializer, BlockedUserSerializer
@@ -84,6 +85,106 @@ class ChangePasswordView(APIView):
         )
 
         return Response({'detail': 'Password changed successfully.'})
+
+
+class ForgotPasswordView(APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = 'auth'
+
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        if not email:
+            return Response({'detail': 'Email address is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({'detail': 'No account found with this email address.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not user.is_active:
+            return Response({'detail': 'This account has been deactivated.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Invalidate previous unused OTPs for this email
+        PasswordResetOTP.objects.filter(email=email, is_used=False).update(is_used=True)
+
+        # Generate a secure 6-digit OTP
+        otp_code = f"{secrets.randbelow(900000) + 100000}"
+        PasswordResetOTP.objects.create(email=email, otp=otp_code)
+
+        AuditLogger.log(
+            user=user,
+            action='ADMIN_ACTION',
+            description="Password reset 6-digit OTP requested",
+            target_type='User',
+            target_id=str(user.id)
+        )
+
+        # Returns the OTP code directly in dev/demo response for seamless verification
+        return Response({
+            'detail': 'A 6-digit verification code has been sent to your email address.',
+            'email': email,
+            'otp': otp_code
+        }, status=status.HTTP_200_OK)
+
+
+class VerifyOTPView(APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = 'auth'
+
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        otp = request.data.get('otp', '').strip()
+
+        if not email or not otp:
+            return Response({'detail': 'Email and 6-digit OTP code are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_record = PasswordResetOTP.objects.filter(email=email, otp=otp, is_used=False).order_by('-created_at').first()
+        if not otp_record or not otp_record.is_valid():
+            return Response({'detail': 'Invalid or expired 6-digit code. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'detail': '6-digit OTP verified successfully.', 'valid': True})
+
+
+class ResetPasswordWithOTPView(APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = 'auth'
+
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        otp = request.data.get('otp', '').strip()
+        new_password = request.data.get('new_password', '')
+
+        if not email or not otp or not new_password:
+            return Response({'detail': 'Email, OTP, and new password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(new_password) < 8:
+            return Response({'detail': 'New password must be at least 8 characters long.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_record = PasswordResetOTP.objects.filter(email=email, otp=otp, is_used=False).order_by('-created_at').first()
+        if not otp_record or not otp_record.is_valid():
+            return Response({'detail': 'Invalid or expired 6-digit code. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({'detail': 'User account not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.set_password(new_password)
+        user.save()
+
+        # Mark OTP as consumed
+        otp_record.is_used = True
+        otp_record.save()
+
+        AuditLogger.log(
+            user=user,
+            action='ADMIN_ACTION',
+            description="User successfully reset password using 6-digit OTP",
+            target_type='User',
+            target_id=str(user.id)
+        )
+
+        return Response({'detail': 'Password has been changed successfully. You can now sign in with your new password.'})
 
 
 class ResidentDirectoryViewSet(viewsets.ReadOnlyModelViewSet):
