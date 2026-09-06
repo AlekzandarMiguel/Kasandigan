@@ -83,15 +83,15 @@ api.interceptors.response.use(
           localStorage.removeItem('kasandigan_access_token');
           localStorage.removeItem('kasandigan_refresh_token');
           localStorage.removeItem('kasandigan_user');
-          if (window.location.pathname !== '/login') {
-            window.location.href = '/login';
+          if (window.location.pathname !== '/') {
+            window.location.href = '/';
           }
         }
       } else {
         localStorage.removeItem('kasandigan_access_token');
         localStorage.removeItem('kasandigan_user');
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
+        if (window.location.pathname !== '/') {
+          window.location.href = '/';
         }
       }
     }
