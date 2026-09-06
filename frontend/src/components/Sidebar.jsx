@@ -3,7 +3,8 @@ import { NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Users, HeartHandshake, Wrench, Layers,
   Flag, Megaphone, FileText, Settings, Shield, UserCheck,
-  Package, Calendar, Bell, LogOut, CheckCircle, MapPin, X
+  Package, Calendar, Bell, LogOut, CheckCircle, MapPin, X,
+  PlusCircle, BarChart3, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -16,53 +17,103 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
     navigate('/login');
   };
 
-  const getLinks = () => {
+  const getNavSections = () => {
     if (user?.role === 'PLATFORM_ADMIN') {
       return [
-        { to: '/platform/dashboard', label: 'Platform Dashboard', icon: LayoutDashboard },
-        { to: '/platform/barangays', label: 'Barangay Tenants', icon: Shield },
-        { to: '/platform/users', label: 'User Directory', icon: Users },
-        { to: '/platform/reports', label: 'Platform Reports', icon: FileText },
-        { to: '/platform/activity-logs', label: 'System Logs', icon: FileText },
+        {
+          title: 'SaaS Administration',
+          links: [
+            { to: '/platform/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+            { to: '/platform/barangays', label: 'Barangay Tenants', icon: Shield },
+            { to: '/platform/users', label: 'User Directory', icon: Users },
+          ],
+        },
+        {
+          title: 'Analytics & Security',
+          links: [
+            { to: '/platform/reports', label: 'Platform Reports', icon: BarChart3 },
+            { to: '/platform/activity-logs', label: 'System Audit Logs', icon: FileText },
+            { to: '/platform/settings', label: 'System Settings', icon: Settings },
+          ],
+        },
       ];
     }
 
     if (user?.role === 'BARANGAY_ADMIN') {
       return [
-        { to: '/admin/dashboard', label: 'Barangay Dashboard', icon: LayoutDashboard },
-        { to: '/admin/residents', label: 'Residents', icon: Users },
-        { to: '/admin/staff', label: 'Barangay Staff', icon: UserCheck },
-        { to: '/admin/requests', label: 'Assistance Requests', icon: HeartHandshake },
-        { to: '/admin/skills', label: 'Skills & Categories', icon: Wrench },
-        { to: '/admin/reports', label: 'Resident Reports', icon: Flag },
-        { to: '/admin/announcements', label: 'Announcements', icon: Megaphone },
-        { to: '/admin/activity-logs', label: 'Activity Logs', icon: FileText },
+        {
+          title: 'Tenant Overview',
+          links: [
+            { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+            { to: '/admin/residents', label: 'Resident Directory', icon: Users },
+            { to: '/admin/staff', label: 'Staff Management', icon: UserCheck },
+          ],
+        },
+        {
+          title: 'Assistance & Taxonomies',
+          links: [
+            { to: '/admin/requests', label: 'Assistance Requests', icon: HeartHandshake },
+            { to: '/admin/skills', label: 'Skills Taxonomy', icon: Wrench },
+            { to: '/admin/categories', label: 'Assistance Categories', icon: Layers },
+          ],
+        },
+        {
+          title: 'Safety & Governance',
+          links: [
+            { to: '/admin/reports', label: 'Resident Reports', icon: Flag },
+            { to: '/admin/announcements', label: 'Announcements', icon: Megaphone },
+            { to: '/admin/activity-logs', label: 'Activity Logs', icon: FileText },
+            { to: '/admin/settings', label: 'Barangay Settings', icon: Settings },
+          ],
+        },
       ];
     }
 
     if (user?.role === 'BARANGAY_STAFF') {
       return [
-        { to: '/staff/dashboard', label: 'Staff Dashboard', icon: LayoutDashboard },
-        { to: '/staff/verifications', label: 'Resident Verifications', icon: UserCheck },
-        { to: '/staff/requests', label: 'Community Requests', icon: HeartHandshake },
-        { to: '/staff/reports', label: 'Triage Reports', icon: Flag },
-        { to: '/staff/announcements', label: 'Barangay Notices', icon: Megaphone },
+        {
+          title: 'Staff Operations',
+          links: [
+            { to: '/staff/dashboard', label: 'Staff Dashboard', icon: LayoutDashboard },
+            { to: '/staff/verifications', label: 'Resident Verifications', icon: UserCheck },
+            { to: '/staff/residents', label: 'Resident Directory', icon: Users },
+          ],
+        },
+        {
+          title: 'Community Moderation',
+          links: [
+            { to: '/staff/requests', label: 'Community Requests', icon: HeartHandshake },
+            { to: '/staff/reports', label: 'Triage Reports', icon: Flag },
+            { to: '/staff/announcements', label: 'Barangay Notices', icon: Megaphone },
+          ],
+        },
       ];
     }
 
     // Resident
     return [
-      { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { to: '/requests', label: 'Assistance Requests', icon: HeartHandshake },
-      { to: '/assistance', label: 'My Assistance Activity', icon: CheckCircle },
-      { to: '/skills', label: 'Skills & Availability', icon: Wrench },
-      { to: '/resources', label: 'Community Resources', icon: Package },
-      { to: '/notifications', label: 'Notifications', icon: Bell },
-      { to: '/settings', label: 'Profile & Settings', icon: Settings },
+      {
+        title: 'Community Aid',
+        links: [
+          { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+          { to: '/requests', label: 'Assistance Requests', icon: HeartHandshake },
+          { to: '/requests/create', label: 'Request Help', icon: PlusCircle },
+          { to: '/assistance', label: 'My Assistance Activity', icon: CheckCircle },
+        ],
+      },
+      {
+        title: 'Helper & Resources',
+        links: [
+          { to: '/skills', label: 'Skills & Availability', icon: Wrench },
+          { to: '/resources', label: 'Community Resources', icon: Package },
+          { to: '/notifications', label: 'Notifications', icon: Bell },
+          { to: '/settings', label: 'Profile & Settings', icon: Settings },
+        ],
+      },
     ];
   };
 
-  const links = getLinks();
+  const sections = getNavSections();
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white border-r border-slate-200 select-none">
@@ -98,7 +149,7 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       </div>
 
       {/* Tenant Indicator if assigned */}
-      {user?.barangay_details && (
+      {user?.barangay_details ? (
         <div className="px-5 py-3 bg-slate-50 border-b border-slate-100">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
             <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -108,33 +159,42 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
             <div className="text-[11px] text-slate-400 pl-5.5 font-medium">{user.zone}</div>
           )}
         </div>
+      ) : (
+        <div className="px-5 py-2.5 bg-indigo-50/50 border-b border-indigo-100/60 flex items-center gap-2 text-[11px] font-bold text-indigo-900">
+          <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+          <span>Multi-Tenant Platform Control</span>
+        </div>
       )}
 
-      {/* Navigation Links */}
-      <div className="p-3 flex-1 overflow-y-auto space-y-1">
-        <div className="px-3 py-1.5 text-[10px] font-extrabold tracking-wider text-slate-400 uppercase">
-          Menu
-        </div>
-        {links.map((link) => {
-          const Icon = link.icon;
-          return (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              onClick={() => setMobileOpen && setMobileOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  isActive
-                    ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`
-              }
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span className="truncate">{link.label}</span>
-            </NavLink>
-          );
-        })}
+      {/* Navigation Sections */}
+      <div className="p-3 flex-1 overflow-y-auto space-y-4">
+        {sections.map((section, sIdx) => (
+          <div key={sIdx} className="space-y-1">
+            <div className="px-3 py-1 text-[10px] font-extrabold tracking-wider text-slate-400 uppercase">
+              {section.title}
+            </div>
+            {section.links.map((link) => {
+              const Icon = link.icon;
+              return (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setMobileOpen && setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`
+                  }
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{link.label}</span>
+                </NavLink>
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       {/* User Footer Profile & Logout */}
