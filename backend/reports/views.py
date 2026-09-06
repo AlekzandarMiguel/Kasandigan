@@ -109,3 +109,93 @@ class ReportViewSet(viewsets.ModelViewSet):
             'detail': f"Report #{report.id} marked as {new_status}.",
             'report': ReportSerializer(report).data
         })
+
+    @action(detail=False, methods=['get'], url_path='dilg-summary', permission_classes=[IsBarangayStaffOrAdmin])
+    def dilg_summary(self, request):
+        from datetime import datetime
+        from assistance.models import AssistanceRequest
+        from accounts.models import User
+        from skills.models import AssistanceCategory
+        from tenants.models import Barangay
+
+        user = request.user
+        brgy = user.barangay
+        if user.role == 'PLATFORM_ADMIN' or not brgy:
+            b_id = request.query_params.get('barangay')
+            brgy = Barangay.objects.filter(id=b_id).first() if b_id else Barangay.objects.first()
+
+        now = timezone.now()
+        try:
+            month = int(request.query_params.get('month', now.month))
+            year = int(request.query_params.get('year', now.year))
+        except (ValueError, TypeError):
+            month = now.month
+            year = now.year
+
+        reqs = AssistanceRequest.objects.filter(
+            barangay=brgy,
+            created_at__year=year,
+            created_at__month=month
+        )
+
+        total_requests = reqs.count()
+        completed_requests = reqs.filter(status='COMPLETED').count()
+        emergency_requests = reqs.filter(urgency='EMERGENCY').count()
+        in_progress = reqs.filter(status__in=['ACCEPTED', 'IN_PROGRESS']).count()
+
+        category_breakdown = []
+        for cat in AssistanceCategory.objects.all():
+            c_count = reqs.filter(category=cat).count()
+            c_comp = reqs.filter(category=cat, status='COMPLETED').count()
+            if c_count > 0:
+                category_breakdown.append({
+                    'category_name': cat.name,
+                    'total_filed': c_count,
+                    'total_completed': c_comp,
+                    'completion_rate': round((c_comp / c_count * 100), 1) if c_count > 0 else 0
+                })
+
+        # Zone equity breakdown
+        zone_counts = {}
+        for r in reqs:
+            z = r.zone or 'Unassigned'
+            zone_counts[z] = zone_counts.get(z, 0) + 1
+        zone_breakdown = [{'zone': k, 'count': v} for k, v in sorted(zone_counts.items())]
+
+        active_helpers = reqs.filter(assigned_helper__isnull=False).values('assigned_helper').distinct().count()
+        total_registered_residents = User.objects.filter(barangay=brgy, role='RESIDENT').count()
+        disputes_count = Report.objects.filter(barangay=brgy, created_at__year=year, created_at__month=month).count()
+
+        try:
+            month_name = datetime(year, month, 1).strftime('%B %Y')
+        except Exception:
+            month_name = f"{month}/{year}"
+
+        return Response({
+            'barangay': {
+                'id': brgy.id if brgy else None,
+                'name': brgy.name if brgy else 'Barangay Unit',
+                'code': brgy.code if brgy else 'BRGY-001',
+                'city': brgy.city if brgy else 'Metropolitan City',
+                'province': brgy.province if brgy else 'Philippines',
+            },
+            'reporting_period': month_name,
+            'month': month,
+            'year': year,
+            'generated_at': now.strftime('%B %d, %Y %I:%M %p'),
+            'generated_by': user.full_name,
+            'executive_summary': {
+                'total_requests': total_requests,
+                'completed_requests': completed_requests,
+                'completion_rate': round((completed_requests / total_requests * 100), 1) if total_requests > 0 else 100.0,
+                'emergency_requests': emergency_requests,
+                'in_progress_requests': in_progress,
+                'active_volunteer_helpers': active_helpers,
+                'total_registered_residents': total_registered_residents,
+                'disputes_reported': disputes_count,
+            },
+            'category_breakdown': category_breakdown,
+            'zone_breakdown': zone_breakdown,
+            'compliance_statement': f"Certified correct and generated in accordance with DILG Barangay Community Aid and Volunteer Standards."
+        })
+

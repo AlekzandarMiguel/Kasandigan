@@ -159,6 +159,29 @@ class ResidentDirectoryViewSet(viewsets.ReadOnlyModelViewSet):
             'resident': UserSerializer(resident).data
         })
 
+    @action(detail=False, methods=['get'], url_path='my-certificate', permission_classes=[permissions.IsAuthenticated])
+    def my_certificate(self, request):
+        import hashlib
+        user = request.user
+        brgy = user.barangay
+        token = hashlib.sha256(f"{user.id}-{user.email}-{user.completed_assistance_count}-KASANDIGAN".encode()).hexdigest()[:16].upper()
+
+        return Response({
+            'recipient_name': user.full_name,
+            'recipient_email': user.email,
+            'recipient_zone': user.zone or 'Resident',
+            'barangay_name': brgy.name if brgy else 'Barangay Unit',
+            'city': brgy.city if brgy else 'Metropolitan City',
+            'province': brgy.province if brgy else 'Philippines',
+            'completed_assistance_count': user.completed_assistance_count or 0,
+            'estimated_volunteer_hours': (user.completed_assistance_count or 0) * 2,
+            'rating_average': float(user.rating_average or 5.0),
+            'issue_date': timezone.now().strftime('%B %d, %Y'),
+            'verification_token': token,
+            'badges': UserSerializer(user).data.get('bayanihan_badges', [])
+        })
+
+
 
 class StaffManagementViewSet(viewsets.ModelViewSet):
     """

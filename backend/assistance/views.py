@@ -4,10 +4,11 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from assistance.models import AssistanceRequest, AssistanceInvitation, AssistanceTransaction
+from assistance.models import AssistanceRequest, AssistanceInvitation, AssistanceTransaction, TicketMessage
 from assistance.serializers import (
     AssistanceRequestSerializer, AssistanceRequestCreateSerializer,
-    AssistanceInvitationSerializer, AssistanceTransactionSerializer
+    AssistanceInvitationSerializer, AssistanceTransactionSerializer,
+    TicketMessageSerializer
 )
 from matching.matching_service import RuleBasedMatchingService
 from accounts.models import User
@@ -172,6 +173,45 @@ class AssistanceRequestViewSet(viewsets.ModelViewSet):
 
         return Response({'detail': 'Assistance request cancelled.'})
 
+    @action(detail=True, methods=['get', 'post'])
+    def messages(self, request, pk=None):
+        req_obj = self.get_object()
+        user = request.user
+
+        is_participant = (user == req_obj.requester or user == req_obj.assigned_helper)
+        is_staff_admin = (user.role in ['BARANGAY_STAFF', 'BARANGAY_ADMIN', 'PLATFORM_ADMIN'])
+        if not (is_participant or is_staff_admin):
+            return Response({'detail': 'Not authorized to view messages for this request.'}, status=status.HTTP_403_FORBIDDEN)
+
+        if request.method == 'GET':
+            msgs = req_obj.messages.all().select_related('sender')
+            req_obj.messages.exclude(sender=user).filter(is_read=False).update(is_read=True)
+            serializer = TicketMessageSerializer(msgs, many=True)
+            return Response(serializer.data)
+
+        elif request.method == 'POST':
+            msg_text = request.data.get('message', '').strip()
+            if not msg_text:
+                return Response({'detail': 'Message text cannot be empty.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            msg = TicketMessage.objects.create(
+                request=req_obj,
+                sender=user,
+                message=msg_text
+            )
+
+            other_user = req_obj.requester if user == req_obj.assigned_helper else req_obj.assigned_helper
+            if other_user:
+                NotificationService.send(
+                    user=other_user,
+                    title=f"New message on '{req_obj.title}'",
+                    message=f"{user.full_name}: {msg_text[:60]}...",
+                    notif_type='GENERAL',
+                    link=f"/requests/{req_obj.id}"
+                )
+
+            return Response(TicketMessageSerializer(msg).data, status=status.HTTP_201_CREATED)
+
 
 class AssistanceInvitationViewSet(viewsets.ModelViewSet):
     serializer_class = AssistanceInvitationSerializer
@@ -313,7 +353,16 @@ class AssistanceWorkflowViewSet(viewsets.ViewSet):
 
         req_obj.status = 'COMPLETED'
         req_obj.completed_at = timezone.now()
-        req_obj.save(update_fields=['status', 'completed_at'])
+        proof_url = request.data.get('completion_proof_url', '').strip()
+        notes = request.data.get('completion_notes', '').strip()
+        update_fields = ['status', 'completed_at']
+        if proof_url:
+            req_obj.completion_proof_url = proof_url
+            update_fields.append('completion_proof_url')
+        if notes:
+            req_obj.completion_notes = notes
+            update_fields.append('completion_notes')
+        req_obj.save(update_fields=update_fields)
 
         # Update transaction
         tx, _ = AssistanceTransaction.objects.get_or_create(

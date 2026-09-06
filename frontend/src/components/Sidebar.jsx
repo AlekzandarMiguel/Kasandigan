@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, HeartHandshake, Wrench, Layers,
   Flag, Megaphone, FileText, Settings, Shield, UserCheck,
   Package, Calendar, Bell, LogOut, CheckCircle, MapPin, X,
-  PlusCircle, BarChart3, ShieldCheck
+  PlusCircle, BarChart3, ShieldCheck, Award
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -60,6 +60,7 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
         {
           title: 'Safety & Governance',
           links: [
+            { to: '/admin/dilg-report', label: 'DILG Monthly Report', icon: Award },
             { to: '/admin/reports', label: 'Resident Reports', icon: Flag },
             { to: '/admin/announcements', label: 'Announcements', icon: Megaphone },
             { to: '/admin/activity-logs', label: 'Activity Logs', icon: FileText },
@@ -105,6 +106,7 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
         title: 'Helper & Resources',
         links: [
           { to: '/skills', label: 'Skills & Availability', icon: Wrench },
+          { to: '/certificate', label: 'Volunteer Certificate', icon: Award },
           { to: '/resources', label: 'Community Resources', icon: Package },
           { to: '/notifications', label: 'Notifications', icon: Bell },
           { to: '/settings', label: 'Profile & Settings', icon: Settings },

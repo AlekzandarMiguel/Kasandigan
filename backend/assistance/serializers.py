@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from assistance.models import AssistanceRequest, AssistanceInvitation, AssistanceTransaction
+from assistance.models import AssistanceRequest, AssistanceInvitation, AssistanceTransaction, TicketMessage
 from skills.serializers import AssistanceCategorySerializer, SkillSerializer
 from accounts.serializers import UserSerializer
 
@@ -24,10 +24,12 @@ class AssistanceRequestSerializer(serializers.ModelSerializer):
             'preferred_time', 'zone', 'urgency', 'status', 'assigned_helper',
             'assigned_helper_name', 'assigned_helper_avatar', 'assigned_helper_rating',
             'additional_notes', 'attachment_url', 'invitation_status', 'has_rating',
+            'completion_proof_url', 'completion_notes',
             'created_at', 'updated_at', 'completed_at'
         ]
         read_only_fields = [
             'id', 'barangay', 'requester', 'status', 'assigned_helper',
+            'completion_proof_url', 'completion_notes',
             'created_at', 'updated_at', 'completed_at'
         ]
 
@@ -94,3 +96,17 @@ class AssistanceTransactionSerializer(serializers.ModelSerializer):
             'created_at'
         ]
         read_only_fields = ['id', 'created_at']
+
+
+class TicketMessageSerializer(serializers.ModelSerializer):
+    sender_name = serializers.ReadOnlyField(source='sender.full_name')
+    sender_avatar = serializers.ReadOnlyField(source='sender.avatar_url')
+    sender_role = serializers.ReadOnlyField(source='sender.role')
+
+    class Meta:
+        model = TicketMessage
+        fields = [
+            'id', 'request', 'sender', 'sender_name', 'sender_avatar',
+            'sender_role', 'message', 'is_read', 'created_at'
+        ]
+        read_only_fields = ['id', 'request', 'sender', 'created_at']

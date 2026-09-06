@@ -25,6 +25,7 @@ import AssistanceTrackerPage from './pages/resident/AssistanceTrackerPage';
 import ResourcesLendingPage from './pages/resident/ResourcesLendingPage';
 import NotificationsPage from './pages/resident/NotificationsPage';
 import ProfileSettingsPage from './pages/resident/ProfileSettingsPage';
+import VolunteerCertificatePage from './pages/resident/VolunteerCertificatePage';
 
 // Staff Pages
 import StaffDashboard from './pages/staff/StaffDashboard';
@@ -45,6 +46,7 @@ import BarangayReportsPage from './pages/admin/BarangayReportsPage';
 import BarangayAnnouncementsPage from './pages/admin/BarangayAnnouncementsPage';
 import ActivityLogsPage from './pages/admin/ActivityLogsPage';
 import BarangaySettingsPage from './pages/admin/BarangaySettingsPage';
+import BarangayDILGReportPage from './pages/admin/BarangayDILGReportPage';
 
 // Platform Admin Pages
 import PlatformDashboard from './pages/platform/PlatformDashboard';
@@ -113,6 +115,7 @@ export function App() {
               <Route path="/skills" element={<SkillsAvailabilityPage />} />
               <Route path="/assistance" element={<AssistanceTrackerPage />} />
               <Route path="/resources" element={<ResourcesLendingPage />} />
+              <Route path="/certificate" element={<VolunteerCertificatePage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/settings" element={<ProfileSettingsPage />} />
             </Route>
@@ -142,6 +145,7 @@ export function App() {
               }
             >
               <Route path="/admin/dashboard" element={<BarangayDashboard />} />
+              <Route path="/admin/dilg-report" element={<BarangayDILGReportPage />} />
               <Route path="/admin/residents" element={<BarangayResidentsPage />} />
               <Route path="/admin/staff" element={<StaffManagementPage />} />
               <Route path="/admin/requests" element={<BarangayRequestsPage />} />

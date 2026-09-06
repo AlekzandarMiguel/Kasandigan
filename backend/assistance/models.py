@@ -43,6 +43,8 @@ class AssistanceRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(null=True, blank=True)
+    completion_proof_url = models.CharField(max_length=500, blank=True, default='')
+    completion_notes = models.TextField(blank=True, default='')
 
     class Meta:
         db_table = 'assistance_requests'
@@ -112,3 +114,21 @@ class AssistanceTransaction(models.Model):
 
     def __str__(self):
         return f"Transaction #{self.id} for '{self.request.title}' ({self.requester.full_name} -> {self.helper.full_name})"
+
+
+class TicketMessage(models.Model):
+    request = models.ForeignKey(AssistanceRequest, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='sent_ticket_messages')
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'ticket_messages'
+        ordering = ['created_at']
+        indexes = [
+            models.Index(fields=['request', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f"Message from {self.sender.full_name} on #{self.request_id}"

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, Calendar, Clock, Plus, Trash2, CheckCircle2, ShieldCheck, MapPin, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Wrench, Calendar, Clock, Plus, Trash2, CheckCircle2, ShieldCheck, MapPin, Sparkles, Award, Printer } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -154,6 +155,46 @@ export const SkillsAvailabilityPage = () => {
           <button onClick={() => setMessage('')} className="font-bold ml-2">✕</button>
         </div>
       )}
+
+      {/* Bayanihan Badges & Volunteer Commendation */}
+      <div className="bg-gradient-to-r from-emerald-900 to-teal-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-800/80 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 text-amber-300 shrink-0">
+              <Award className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-white">Bayanihan Honors & Community Badges</h3>
+              <p className="text-xs text-emerald-200">Earned volunteer recognitions for verified assistance</p>
+            </div>
+          </div>
+
+          <Link
+            to="/certificate"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-amber-950 rounded-xl text-xs font-bold shadow-md transition-all whitespace-nowrap cursor-pointer"
+          >
+            <Printer className="w-4 h-4" /> View Official Certificate
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+          {user?.bayanihan_badges && user.bayanihan_badges.length > 0 ? (
+            user.bayanihan_badges.map((b) => (
+              <div key={b.id} className="p-3 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-xs">
+                <div className="flex items-center gap-2 text-amber-300">
+                  <Award className="w-4 h-4" />
+                  <span className="text-xs font-bold">{b.name}</span>
+                </div>
+                <p className="text-[10px] text-emerald-200 mt-1 line-clamp-2">{b.description}</p>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-xs text-emerald-300 italic">
+              Complete your first community assistance ticket to unlock your first Bayanihan badge and official Certificate of Volunteer Service!
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Assistance Radius Preference */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-3">

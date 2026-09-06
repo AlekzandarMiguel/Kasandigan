@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   HeartHandshake, Calendar, Clock, MapPin, Tag, User,
   CheckCircle, ArrowLeft, Send, Star, AlertTriangle, ShieldCheck,
-  Award, Flag, XCircle, Play, Sparkles
+  Award, Flag, XCircle, Play, Sparkles, MessageSquare, Image, FileText
 } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -11,6 +11,8 @@ import StatusBadge from '../../components/StatusBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import RatingModal from '../../components/RatingModal';
 import ReportModal from '../../components/ReportModal';
+import TicketChatModal from '../../components/TicketChatModal';
+import ProofOfWorkModal from '../../components/ProofOfWorkModal';
 
 export const RequestDetailPage = () => {
   const { id } = useParams();
@@ -27,6 +29,8 @@ export const RequestDetailPage = () => {
   // Modals
   const [ratingOpen, setRatingOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [proofModalOpen, setProofModalOpen] = useState(false);
 
   const fetchRequestDetails = async () => {
     try {
@@ -107,10 +111,12 @@ export const RequestDetailPage = () => {
     }
   };
 
-  const handleCompleteAssistance = async () => {
+  const handleCompleteAssistance = async (proofData = {}) => {
     setActionLoading(true);
     try {
-      await api.post(`/assistance/workflow/${id}/complete/`);
+      await api.post(`/assistance/workflow/${id}/complete/`, proofData);
+      setProofModalOpen(false);
+      setMessage('Assistance marked as completed successfully!');
       fetchRequestDetails();
     } catch (err) {
       alert(err.response?.data?.detail || 'Failed to complete assistance.');
@@ -214,6 +220,43 @@ export const RequestDetailPage = () => {
           </div>
         )}
 
+        {request.status === 'COMPLETED' && (request.completion_proof_url || request.completion_notes) && (
+          <div className="p-4 bg-emerald-50/70 rounded-2xl border border-emerald-200/80 space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-emerald-900">
+              <CheckCircle className="w-4 h-4 text-emerald-600" />
+              <span>Helper's Proof of Completion & Work Notes</span>
+            </div>
+            {request.completion_notes && (
+              <p className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-emerald-100">
+                {request.completion_notes}
+              </p>
+            )}
+            {request.completion_proof_url && (
+              <div className="pt-1">
+                <div className="text-[11px] font-bold text-emerald-800 mb-1 flex items-center gap-1">
+                  <Image className="w-3.5 h-3.5" /> Work Photo Attachment:
+                </div>
+                <a
+                  href={request.completion_proof_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block max-w-xs overflow-hidden rounded-xl border border-emerald-200 hover:opacity-90 transition-opacity"
+                >
+                  <img
+                    src={request.completion_proof_url}
+                    alt="Proof of work"
+                    className="w-full h-36 object-cover bg-slate-100"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                  <div className="p-2 bg-white text-[11px] font-bold text-emerald-700 truncate">
+                    View Full Photo Attachment ↗
+                  </div>
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Workflow Action Bar */}
         <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -230,6 +273,16 @@ export const RequestDetailPage = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {/* Ticket Secure Chat Button */}
+            {['ACCEPTED', 'IN_PROGRESS', 'COMPLETED'].includes(request.status) && (isRequester || isHelper || ['BARANGAY_STAFF', 'BARANGAY_ADMIN'].includes(user?.role)) && (
+              <button
+                onClick={() => setChatOpen(true)}
+                className="px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+              >
+                <MessageSquare className="w-3.5 h-3.5" /> Ticket Chat
+              </button>
+            )}
+
             {/* Helper Invitation Response */}
             {myInvitation && (
               <div className="flex gap-2">
@@ -263,7 +316,7 @@ export const RequestDetailPage = () => {
 
             {request.status === 'IN_PROGRESS' && (isRequester || isHelper) && (
               <button
-                onClick={handleCompleteAssistance}
+                onClick={() => setProofModalOpen(true)}
                 disabled={actionLoading}
                 className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-all flex items-center gap-1.5"
               >
@@ -434,6 +487,23 @@ export const RequestDetailPage = () => {
         reportedRequestId={request.id}
         targetName={request.title}
         onReported={fetchRequestDetails}
+      />
+
+      {/* Ticket Secure Chat Modal */}
+      <TicketChatModal
+        requestId={request.id}
+        requestTitle={request.title}
+        isOpen={chatOpen}
+        onClose={() => setChatOpen(false)}
+        currentUser={user}
+      />
+
+      {/* Proof of Work Completion Modal */}
+      <ProofOfWorkModal
+        isOpen={proofModalOpen}
+        onClose={() => setProofModalOpen(false)}
+        onConfirm={handleCompleteAssistance}
+        loading={actionLoading}
       />
     </div>
   );

@@ -7,6 +7,7 @@ from tenants.serializers import BarangaySerializer
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.ReadOnlyField()
     barangay_details = BarangaySerializer(source='barangay', read_only=True)
+    bayanihan_badges = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -16,13 +17,60 @@ class UserSerializer(serializers.ModelSerializer):
             'zone', 'bio', 'avatar_url', 'verification_status',
             'verification_notes', 'verified_at', 'assistance_radius',
             'completed_assistance_count', 'rating_average', 'rating_count',
+            'bayanihan_badges',
             'is_active', 'created_at'
         ]
         read_only_fields = [
             'role', 'verification_status', 'verification_notes',
             'verified_at', 'completed_assistance_count', 'rating_average',
-            'rating_count', 'is_active', 'created_at'
+            'rating_count', 'bayanihan_badges', 'is_active', 'created_at'
         ]
+
+    def get_bayanihan_badges(self, obj):
+        badges = []
+        count = obj.completed_assistance_count or 0
+        rating = float(obj.rating_average or 0)
+
+        if count >= 1:
+            badges.append({
+                'id': 'starter',
+                'name': 'Bayanihan Starter',
+                'description': 'Completed first community assistance',
+                'tier': 'BRONZE',
+                'icon': 'Medal',
+                'color': 'amber'
+            })
+        if count >= 5 and rating >= 4.0:
+            badges.append({
+                'id': 'pillar',
+                'name': 'Community Pillar',
+                'description': 'Completed 5+ assists with 4.0+ rating',
+                'tier': 'SILVER',
+                'icon': 'Award',
+                'color': 'slate'
+            })
+        if count >= 10:
+            badges.append({
+                'id': 'champion',
+                'name': 'Barangay Champion',
+                'description': 'Completed 10+ verified community assists',
+                'tier': 'GOLD',
+                'icon': 'Trophy',
+                'color': 'yellow'
+            })
+        try:
+            if obj.helping_requests.filter(urgency='EMERGENCY', status='COMPLETED').exists():
+                badges.append({
+                    'id': 'hero',
+                    'name': 'Emergency Responder',
+                    'description': 'Volunteered and resolved an urgent priority ticket',
+                    'tier': 'RUBY',
+                    'icon': 'ShieldAlert',
+                    'color': 'rose'
+                })
+        except Exception:
+            pass
+        return badges
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
