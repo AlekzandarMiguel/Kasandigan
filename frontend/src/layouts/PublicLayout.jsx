@@ -43,7 +43,7 @@ export const PublicLayout = () => {
             </div>
           </div>
           <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-            <p>&copy; {new Date().getFullYear()} Kasandigan SaaS. Designed for Philippine Local Government Units.</p>
+            <p>&copy; {new Date().getFullYear()} Kasandigan SaaS. Personal community project built for fun and learning.</p>
             <p className="mt-2 sm:mt-0">Rule-Based Matching • Transparent • Logically Isolated</p>
           </div>
         </div>

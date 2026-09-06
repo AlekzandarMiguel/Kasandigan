@@ -2,7 +2,7 @@
 
 "A community you can rely on."
 
-Kasandigan is an enterprise-grade, multi-tenant civic assistance and resource-sharing web application built for Local Government Units (LGUs) and Philippine barangays. Designed initially for the Municipality of Maramag, Bukidnon across all 20 of its constituent barangays, the platform provides on-demand neighborhood mutual aid, community equipment lending, automated MDRRMO disaster broadcast integration, deterministic skill-matching, and authenticated civic volunteer certification under the governance of Barangay Staff and Administrators.
+Kasandigan is a personal project built for fun and learning—a multi-tenant civic assistance and resource-sharing web application inspired by Philippine barangay community dynamics. Using the Municipality of Maramag, Bukidnon and its 20 barangays as a rich real-world modeling context, the project explores on-demand neighborhood mutual aid, community equipment lending, automated emergency broadcasts, deterministic skill-matching algorithms, and civic volunteer recognition.
 
 ---
 
@@ -445,6 +445,8 @@ The seed script (`seed_data.py`) populates the database with real-world local da
 
 ---
 
-## License
+## Project Disclaimer and License
 
-Developed for Philippine Local Government Units and local barangay councils. All rights reserved.
+This is a personal hobby and portfolio project created for fun, experimentation, and learning. It is not an official government system and is not commissioned by, officially affiliated with, or endorsed by any Philippine Local Government Unit (LGU) or government agency.
+
+Open source and shared for educational and portfolio demonstration purposes. All rights reserved.
