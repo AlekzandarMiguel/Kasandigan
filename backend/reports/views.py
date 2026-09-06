@@ -199,3 +199,152 @@ class ReportViewSet(viewsets.ModelViewSet):
             'compliance_statement': f"Certified correct and generated in accordance with DILG Barangay Community Aid and Volunteer Standards."
         })
 
+    @action(detail=False, methods=['get'], url_path='municipal-dilg-summary', permission_classes=[permissions.IsAuthenticated])
+    def municipal_dilg_summary(self, request):
+        from datetime import datetime
+        from assistance.models import AssistanceRequest
+        from accounts.models import User
+        from skills.models import AssistanceCategory
+        from tenants.models import Barangay
+        from ratings.models import Rating
+        from resources.models import Resource
+
+        now = timezone.now()
+        try:
+            month = int(request.query_params.get('month', now.month))
+            year = int(request.query_params.get('year', now.year))
+        except (ValueError, TypeError):
+            month = now.month
+            year = now.year
+
+        barangays = list(Barangay.objects.all().order_by('name'))
+        b_ids = [b.id for b in barangays]
+
+        all_reqs = AssistanceRequest.objects.filter(
+            barangay_id__in=b_ids,
+            created_at__year=year,
+            created_at__month=month
+        )
+
+        total_requests = all_reqs.count()
+        completed_requests = all_reqs.filter(status='COMPLETED').count()
+        emergency_requests = all_reqs.filter(urgency='EMERGENCY').count()
+        in_progress = all_reqs.filter(status__in=['ACCEPTED', 'IN_PROGRESS', 'EN_ROUTE']).count()
+
+        # 20 Barangays Comparative Breakdown
+        barangay_breakdown = []
+        for b in barangays:
+            b_reqs = all_reqs.filter(barangay=b)
+            b_total = b_reqs.count()
+            b_comp = b_reqs.filter(status='COMPLETED').count()
+            b_rate = round((b_comp / b_total * 100), 1) if b_total > 0 else 100.0
+            b_helpers = b_reqs.filter(assigned_helper__isnull=False).values('assigned_helper').distinct().count()
+            b_residents = User.objects.filter(barangay=b, role='RESIDENT').count()
+            b_ratings = Rating.objects.filter(barangay=b)
+            b_avg_score = round(sum(r.score for r in b_ratings) / b_ratings.count(), 2) if b_ratings.exists() else 5.0
+
+            barangay_breakdown.append({
+                'id': b.id,
+                'name': b.name,
+                'code': b.code,
+                'total_requests': b_total,
+                'completed_requests': b_comp,
+                'completion_rate': b_rate,
+                'active_helpers': b_helpers,
+                'registered_residents': b_residents,
+                'average_rating': b_avg_score
+            })
+
+        # Sort by total requests then completion rate
+        barangay_breakdown.sort(key=lambda x: (x['total_requests'], x['completion_rate']), reverse=True)
+
+        # Municipality-wide category breakdown
+        category_breakdown = []
+        for cat in AssistanceCategory.objects.all():
+            c_count = all_reqs.filter(category=cat).count()
+            c_comp = all_reqs.filter(category=cat, status='COMPLETED').count()
+            if c_count > 0:
+                category_breakdown.append({
+                    'category_name': cat.name,
+                    'total_filed': c_count,
+                    'total_completed': c_comp,
+                    'completion_rate': round((c_comp / c_count * 100), 1) if c_count > 0 else 0
+                })
+
+        total_registered_residents = User.objects.filter(barangay_id__in=b_ids, role='RESIDENT').count()
+        total_active_helpers = all_reqs.filter(assigned_helper__isnull=False).values('assigned_helper').distinct().count()
+        total_shared_resources = Resource.objects.filter(barangay_id__in=b_ids).count()
+        total_disputes = Report.objects.filter(barangay_id__in=b_ids, created_at__year=year, created_at__month=month).count()
+
+        try:
+            month_name = datetime(year, month, 1).strftime('%B %Y')
+        except Exception:
+            month_name = f"{month}/{year}"
+
+        return Response({
+            'lgu': {
+                'municipality': 'Maramag',
+                'province': 'Bukidnon',
+                'region': 'Region X - Northern Mindanao',
+                'total_barangays_count': len(barangays),
+            },
+            'reporting_period': month_name,
+            'month': month,
+            'year': year,
+            'generated_at': now.strftime('%B %d, %Y %I:%M %p'),
+            'generated_by': request.user.full_name,
+            'executive_summary': {
+                'total_requests': total_requests,
+                'completed_requests': completed_requests,
+                'completion_rate': round((completed_requests / total_requests * 100), 1) if total_requests > 0 else 100.0,
+                'emergency_requests': emergency_requests,
+                'in_progress_requests': in_progress,
+                'active_volunteer_helpers': total_active_helpers,
+                'total_registered_residents': total_registered_residents,
+                'total_shared_resources': total_shared_resources,
+                'total_disputes_reported': total_disputes,
+            },
+            'barangay_breakdown': barangay_breakdown,
+            'category_breakdown': category_breakdown,
+            'compliance_statement': "Certified consolidated municipal report for submission to the Sangguniang Bayan of Maramag and DILG Bukidnon Provincial Operations Office."
+        })
+
+    @action(detail=False, methods=['get'], url_path='municipal-overview', permission_classes=[permissions.IsAuthenticated])
+    def municipal_overview(self, request):
+        from tenants.models import Barangay
+        from assistance.models import AssistanceRequest
+        from accounts.models import User
+        from resources.models import Resource
+
+        barangays = Barangay.objects.all().order_by('name')
+        grid = []
+        for b in barangays:
+            active_reqs = AssistanceRequest.objects.filter(
+                barangay=b,
+                status__in=['OPEN', 'MATCHED', 'ACCEPTED', 'EN_ROUTE', 'IN_PROGRESS']
+            ).count()
+            comp_reqs = AssistanceRequest.objects.filter(barangay=b, status='COMPLETED').count()
+            residents_count = User.objects.filter(barangay=b, role='RESIDENT').count()
+            resources_count = Resource.objects.filter(barangay=b).count()
+
+            grid.append({
+                'id': b.id,
+                'name': b.name,
+                'code': b.code,
+                'contact_number': b.contact_number,
+                'email': b.email,
+                'status': b.status,
+                'zones_count': len(b.zones) if isinstance(b.zones, list) else 0,
+                'active_requests': active_reqs,
+                'completed_requests': comp_reqs,
+                'residents_count': residents_count,
+                'resources_count': resources_count
+            })
+
+        return Response({
+            'municipality': 'Maramag',
+            'province': 'Bukidnon',
+            'barangays_count': len(grid),
+            'grid': grid
+        })
+

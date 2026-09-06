@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Layouts
 import PublicLayout from './layouts/PublicLayout';
@@ -55,6 +56,7 @@ import PlatformUsersPage from './pages/platform/PlatformUsersPage';
 import PlatformReportsPage from './pages/platform/PlatformReportsPage';
 import PlatformActivityLogsPage from './pages/platform/PlatformActivityLogsPage';
 import PlatformSettingsPage from './pages/platform/PlatformSettingsPage';
+import MunicipalDILGReportPage from './pages/platform/MunicipalDILGReportPage';
 
 // Loading Spinner
 import LoadingSpinner from './components/LoadingSpinner';
@@ -89,8 +91,9 @@ export function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
-        <Router>
-          <Routes>
+        <LanguageProvider>
+          <Router>
+            <Routes>
             {/* Public Routes */}
             <Route element={<PublicLayout />}>
               <Route path="/" element={<LandingPage />} />
@@ -166,6 +169,7 @@ export function App() {
               }
             >
               <Route path="/platform/dashboard" element={<PlatformDashboard />} />
+              <Route path="/platform/dilg-report" element={<MunicipalDILGReportPage />} />
               <Route path="/platform/barangays" element={<BarangaysManagementPage />} />
               <Route path="/platform/users" element={<PlatformUsersPage />} />
               <Route path="/platform/reports" element={<PlatformReportsPage />} />
@@ -177,6 +181,7 @@ export function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
+        </LanguageProvider>
       </NotificationProvider>
     </AuthProvider>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { HeartHandshake, User, Mail, Phone, Lock, MapPin, ArrowRight, ShieldCheck } from 'lucide-react';
+import { HeartHandshake, User, Mail, Phone, Lock, MapPin, ArrowRight, ShieldCheck, FileCheck, GraduationCap } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
@@ -14,6 +14,8 @@ export const RegisterPage = () => {
     password_confirm: '',
     barangay_id: '',
     zone: '',
+    id_document_type: 'BARANGAY_CLEARANCE',
+    id_document_url: '',
   });
 
   const [barangays, setBarangays] = useState([]);
@@ -75,7 +77,7 @@ export const RegisterPage = () => {
         const firstErr = Object.values(errData)[0];
         setError(Array.isArray(firstErr) ? firstErr[0] : String(firstErr));
       } else {
-        setError('Registration failed. Please try again.');
+        setError('Registration failed. Please check your information and try again.');
       }
     } finally {
       setLoading(false);
@@ -89,8 +91,11 @@ export const RegisterPage = () => {
           <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-600/30">
             <HeartHandshake className="w-7 h-7" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900">Resident Registration</h2>
-          <p className="text-xs text-slate-500 mt-1">Join your local barangay community assistance network</p>
+          <div className="inline-block px-3 py-1 bg-emerald-50 text-emerald-800 text-[11px] font-bold rounded-full mb-1">
+            Municipality of Maramag, Bukidnon
+          </div>
+          <h2 className="text-2xl font-black text-slate-900">Resident Citizen Registration</h2>
+          <p className="text-xs text-slate-500 mt-1">Connect with neighbors and local barangay assistance</p>
         </div>
 
         {error && (
@@ -164,16 +169,16 @@ export const RegisterPage = () => {
           {/* Barangay Tenant Selection */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-emerald-50/60 p-3.5 rounded-2xl border border-emerald-100">
             <div>
-              <label className="block text-xs font-bold text-emerald-900 mb-1">Barangay (Tenant)</label>
+              <label className="block text-xs font-bold text-emerald-900 mb-1">Barangay (Maramag)</label>
               <select
                 required
                 value={formData.barangay_id}
                 onChange={handleBarangayChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-emerald-200 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                className="w-full text-sm px-3 py-2 rounded-xl border border-emerald-200 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-hidden font-medium"
               >
                 {barangays.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.name} ({b.municipality_city})
+                    Brgy. {b.name}
                   </option>
                 ))}
               </select>
@@ -186,7 +191,7 @@ export const RegisterPage = () => {
                   required
                   value={formData.zone}
                   onChange={(e) => setFormData({ ...formData, zone: e.target.value })}
-                  className="w-full text-sm px-3 py-2 rounded-xl border border-emerald-200 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                  className="w-full text-sm px-3 py-2 rounded-xl border border-emerald-200 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-hidden font-medium"
                 >
                   {zones.map((z, idx) => (
                     <option key={idx} value={z}>{z}</option>
@@ -203,6 +208,50 @@ export const RegisterPage = () => {
                 />
               )}
             </div>
+          </div>
+
+          {/* Resident Residency Document Proof (Optional online, or walk-in) */}
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <FileCheck className="w-4 h-4 text-emerald-600" />
+                Residency Verification Proof (Optional Online)
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
+                LGU Verification
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">ID Document Type</label>
+                <select
+                  value={formData.id_document_type}
+                  onChange={(e) => setFormData({ ...formData, id_document_type: e.target.value })}
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                >
+                  <option value="BARANGAY_CLEARANCE">Barangay Residency Clearance</option>
+                  <option value="VOTER_ID">COMELEC Voter's ID / Cert</option>
+                  <option value="CMU_ID">Central Mindanao University (CMU) ID</option>
+                  <option value="GOV_ID">National ID / Gov't Issued ID</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">Document Link / Photo URL</label>
+                <input
+                  type="url"
+                  value={formData.id_document_url}
+                  onChange={(e) => setFormData({ ...formData, id_document_url: e.target.value })}
+                  placeholder="https://... (Drive or image URL)"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                />
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-500">
+              * CMU students & staff residing in Musuan or Dologon can provide their CMU ID for faster verification. If you do not have a link, you can register now and present your ID in-person at your Barangay Hall desk.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -234,10 +283,10 @@ export const RegisterPage = () => {
             </div>
           </div>
 
-          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 flex items-start gap-2">
+          <div className="p-3 bg-emerald-50/70 rounded-xl border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
             <span>
-              By registering, your account enters <span className="font-semibold text-slate-800">Pending Verification</span>. Your local barangay hall staff will confirm your residency before active assistance exchanges begin.
+              By registering, your account enters <span className="font-bold">Pending Verification</span>. Your local Maramag barangay hall staff will inspect your ID proof before assistance matching is authorized.
             </span>
           </div>
 
@@ -246,13 +295,13 @@ export const RegisterPage = () => {
             disabled={loading}
             className="w-full py-3 px-4 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {loading ? 'Creating account...' : 'Register as Resident'}
+            {loading ? 'Creating account...' : 'Complete Resident Registration'}
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
         <div className="text-center text-xs text-slate-500">
-          Already have an account?{' '}
+          Already registered in your barangay?{' '}
           <Link to="/login" className="font-bold text-emerald-600 hover:text-emerald-700">
             Sign In Here
           </Link>

@@ -264,6 +264,22 @@ def run_seed():
 
     # 2. Categories & Skills
     categories_data = [
+        ("Agriculture & Farm Support", "Tractor", [
+            ("Hand-Tractor & Cultivator Operation", "Tilling, plowing, and small mechanical farm machinery troubleshooting"),
+            ("Irrigation Canal Maintenance", "Clearing agricultural waterways, declogging feeder canals, and barrier setup"),
+            ("Harvest & Grain Bagging Support", "Post-harvest hauling, bagging, and drying assistance for smallholders"),
+            ("Chainsaw Operation & Tree Pruning", "Safe clearing of storm debris, fallen branches, and timber trimming")
+        ]),
+        ("Livestock & Agri-Vet", "PawPrint", [
+            ("Backyard Poultry & Hog Pen Repair", "Constructing and reinforcing animal shelters, coops, and pens"),
+            ("Livestock Care & Cattle Tethering", "Handling carabao and cattle feeding, pasturing, and shelter safety"),
+            ("Community Animal Vaccination Assistant", "Assisting LGU/barangay veterinary officers during rabies & livestock vaccination drives")
+        ]),
+        ("CMU Academic & Research Support", "GraduationCap", [
+            ("Elementary Math Tutoring", "Basic arithmetic, algebra, and STEM homework support"),
+            ("English Reading & Writing", "Manuscript, term paper, and thesis literacy review"),
+            ("Data Encoding & Spreadsheet Assistance", "Excel data entry, survey tabulations, and simple statistics")
+        ]),
         ("Technology Help", "Laptop", [
             ("Computer Repair", "Hardware troubleshooting, OS installation, and screen repair"),
             ("Basic Smartphone Assistance", "Phone setup, app troubleshooting, and senior accessibility"),
@@ -276,20 +292,16 @@ def run_seed():
             ("House Cleaning", "Deep cleaning and sorting assistance")
         ]),
         ("Transportation & Errands", "Car", [
-            ("Grocery & Medicine Errands", "Assistance purchasing essential supplies for seniors"),
-            ("Motorcycle Transport Assistance", "Local transportation within the barangay")
-        ]),
-        ("Tutoring & Education", "BookOpen", [
-            ("Elementary Math Tutoring", "Basic arithmetic and homework support"),
-            ("English Reading & Writing", "Literacy support for primary students")
+            ("Grocery & Medicine Errands", "Assistance purchasing essential supplies for seniors in Maramag"),
+            ("Motorcycle Transport Assistance", "Local transportation within the barangay and puroks")
         ]),
         ("Elderly Assistance", "HeartHandshake", [
             ("Senior Companionship & Walks", "Accompanying elderly for health walks and social visits"),
             ("Prescription Drug Reminders", "Helping organize weekly pill boxes and pharmacy pick-ups")
         ]),
-        ("Gardening & Yard Care", "Flower2", [
+        ("Gardening & Farm Care", "Flower2", [
             ("Yard Lawn Mowing", "Grass trimming and weed removal"),
-            ("Vegetable Gardening", "Urban container gardening and soil preparation")
+            ("Vegetable Gardening", "Vegetable plot care, backyard gardening, and soil preparation")
         ])
     ]
 
@@ -636,7 +648,21 @@ def run_seed():
         }
     )
 
-    # 5. Announcements
+    # 5. Announcements (MDRRMO Municipal Emergency Alert & Barangay Announcements)
+    Announcement.objects.get_or_create(
+        title="MDRRMO Weather Advisory: Heavy Rainfall Alert for Maramag & Pulangi Basin",
+        defaults={
+            "author": p_admin,
+            "barangay": None,
+            "is_emergency_broadcast": True,
+            "alert_level": "WARNING",
+            "priority": "EMERGENCY",
+            "is_pinned": True,
+            "is_active": True,
+            "content": "Tropical trough affecting Bukidnon. Residents along Riverside Puroks in South Poblacion, Base Camp, and Bayabason are advised to monitor water levels and stay in close communication with your Barangay DRRM officers."
+        }
+    )
+
     Announcement.objects.get_or_create(
         barangay=b_southpob,
         title="Community Clean-up & Oplan Linis Drive along Sayre Highway",
@@ -659,7 +685,33 @@ def run_seed():
         }
     )
 
-    # 6. Community Resources
+    # 6. Community & Agricultural Resources
+    Resource.objects.get_or_create(
+        barangay=b_southpob,
+        name="Heavy-Duty 2-Stroke Grass Cutter / Weed Whacker",
+        defaults={
+            "owner": cardo,
+            "category": "TOOLS",
+            "condition": "EXCELLENT",
+            "zone": "Purok 1 - Riverside",
+            "status": "AVAILABLE",
+            "description": "Powerful 43cc engine grass trimmer suitable for clearing overgrown vacant lots, farm boundaries, and purok pathways."
+        }
+    )
+
+    Resource.objects.get_or_create(
+        barangay=b_musuan,
+        name="Knapsack 16-Liter Agricultural Chemical Sprayer",
+        defaults={
+            "owner": arnel,
+            "category": "TOOLS",
+            "condition": "GOOD",
+            "zone": "CMU Faculty Village",
+            "status": "AVAILABLE",
+            "description": "Manual pressure knapsack sprayer with brass nozzles for garden or backyard orchard pest control."
+        }
+    )
+
     Resource.objects.get_or_create(
         barangay=b_southpob,
         name="12-Foot Heavy Duty Aluminum Folding Ladder",

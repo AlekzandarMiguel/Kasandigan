@@ -16,6 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
             'mobile_number', 'role', 'barangay', 'barangay_details',
             'zone', 'bio', 'avatar_url', 'verification_status',
             'verification_notes', 'verified_at', 'assistance_radius',
+            'id_document_url', 'id_document_type',
             'completed_assistance_count', 'rating_average', 'rating_count',
             'bayanihan_badges',
             'is_active', 'created_at'
@@ -87,7 +88,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'email', 'password', 'password_confirm', 'first_name',
-            'last_name', 'mobile_number', 'barangay_id', 'zone'
+            'last_name', 'mobile_number', 'barangay_id', 'zone',
+            'id_document_url', 'id_document_type'
         ]
 
     def validate(self, attrs):
@@ -132,7 +134,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'first_name', 'last_name', 'mobile_number', 'zone',
-            'bio', 'avatar_url', 'assistance_radius'
+            'bio', 'avatar_url', 'assistance_radius',
+            'id_document_url', 'id_document_type'
         ]
 
 

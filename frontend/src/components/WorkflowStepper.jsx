@@ -1,16 +1,19 @@
 import React from 'react';
 import { FileText, UserCheck, Navigation, Wrench, CheckCircle, Star } from 'lucide-react';
-
-const STEPS = [
-  { id: 'filed', label: 'Request Filed', icon: FileText, desc: 'Citizen posted request' },
-  { id: 'assigned', label: 'Helper Assigned', icon: UserCheck, desc: 'Helper matched & confirmed' },
-  { id: 'en_route', label: 'Helper En Route', icon: Navigation, desc: 'Traveling to location' },
-  { id: 'in_progress', label: 'In Progress', icon: Wrench, desc: 'Assistance taking place' },
-  { id: 'completed', label: 'Completed', icon: CheckCircle, desc: 'Proof submitted' },
-  { id: 'rated', label: 'Rated & Closed', icon: Star, desc: 'Feedback submitted' },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export const WorkflowStepper = ({ status, hasRating = false }) => {
+  const { t } = useLanguage();
+
+  const STEPS = [
+    { id: 'filed', label: t('step_filed_title'), icon: FileText, desc: t('step_filed_desc') },
+    { id: 'assigned', label: t('step_assigned_title'), icon: UserCheck, desc: t('step_assigned_desc') },
+    { id: 'en_route', label: t('step_en_route_title'), icon: Navigation, desc: t('step_en_route_desc') },
+    { id: 'in_progress', label: t('step_in_progress_title'), icon: Wrench, desc: t('step_in_progress_desc') },
+    { id: 'completed', label: t('step_completed_title'), icon: CheckCircle, desc: t('step_completed_desc') },
+    { id: 'rated', label: t('step_closed_title'), icon: Star, desc: t('step_closed_desc') },
+  ];
+
   if (status === 'CANCELLED') {
     return (
       <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-xs font-bold text-rose-700 flex items-center gap-2">

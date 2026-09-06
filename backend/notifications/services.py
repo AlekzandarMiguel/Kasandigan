@@ -33,3 +33,20 @@ class NotificationService:
             for u in residents
         ]
         Notification.objects.bulk_create(notifs)
+
+    @staticmethod
+    def broadcast_municipal(title, message, notif_type='EMERGENCY_ALERT', link=''):
+        from accounts.models import User
+        users = User.objects.filter(is_active=True)
+        notifs = [
+            Notification(
+                user=u,
+                barangay=u.barangay,
+                title=title,
+                message=message,
+                type=notif_type,
+                link=link
+            )
+            for u in users
+        ]
+        Notification.objects.bulk_create(notifs)

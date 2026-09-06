@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
+import EmergencyAlertBanner from '../components/EmergencyAlertBanner';
 import { LayoutDashboard, HeartHandshake, CheckCircle, Package, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,6 +18,7 @@ export const ResidentLayout = () => {
       {/* Main Content Area filling remaining space to the right */}
       <div className="flex-1 flex flex-col min-w-0 md:pl-64">
         <Navbar onToggleMobileSidebar={() => setMobileOpen(!mobileOpen)} />
+        <EmergencyAlertBanner />
 
         {/* Verification Banner if pending */}
         {user?.verification_status === 'PENDING_VERIFICATION' && (

@@ -1,24 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Phone, Mail, MapPin, CheckCircle, Clock, ShieldCheck, XCircle, UserCheck, AlertCircle } from 'lucide-react';
+import {
+  Users, Search, Phone, Mail, MapPin, CheckCircle, Clock,
+  ShieldCheck, XCircle, UserCheck, AlertCircle, FileText, Eye
+} from 'lucide-react';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
+import InspectIDModal from '../../components/InspectIDModal';
 
 export const StaffResidentsDirectoryPage = () => {
   const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [zoneFilter, setZoneFilter] = useState('');
-  const [selectedResident, setSelectedResident] = useState(null);
+  const [inspectingResident, setInspectingResident] = useState(null);
 
   const fetchResidents = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/accounts/users/');
+      // Use standard residents endpoint which filters to staff barangay
+      const res = await api.get('/residents/');
       const allUsers = res.data.results || res.data || [];
-      setResidents(allUsers.filter(u => u.role === 'RESIDENT'));
+      setResidents(allUsers);
     } catch (err) {
       console.error(err);
+      // Fallback to accounts/users if residents endpoint has error
+      try {
+        const fallbackRes = await api.get('/accounts/users/');
+        const users = fallbackRes.data.results || fallbackRes.data || [];
+        setResidents(users.filter(u => u.role === 'RESIDENT'));
+      } catch (fErr) {
+        console.error(fErr);
+      }
     } finally {
       setLoading(false);
     }
@@ -29,13 +42,13 @@ export const StaffResidentsDirectoryPage = () => {
   }, []);
 
   const handleVerifyInPerson = async (residentId) => {
-    if (!window.confirm('Confirm in-person verification with physical government ID presented at desk?')) return;
+    if (!window.confirm('Confirm in-person verification with physical government/barangay ID presented at desk?')) return;
     try {
-      await api.patch(`/accounts/users/${residentId}/`, {
-        verification_status: 'VERIFIED',
+      await api.post(`/residents/${residentId}/verify/`, {
+        status: 'VERIFIED',
+        notes: 'In-person physical ID verified at Barangay Hall front desk.'
       });
       fetchResidents();
-      setSelectedResident(null);
     } catch (err) {
       alert('Error updating verification: ' + (err.response?.data?.detail || err.message));
     }
@@ -47,14 +60,24 @@ export const StaffResidentsDirectoryPage = () => {
     if (zoneFilter && r.zone !== zoneFilter) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      const matchName = `${r.first_name} ${r.last_name}`.toLowerCase().includes(q);
-      const matchEmail = r.email?.toLowerCase().includes(q);
-      const matchPhone = r.phone_number?.toLowerCase().includes(q);
-      const matchZone = r.zone?.toLowerCase().includes(q);
+      const matchName = `${r.first_name || ''} ${r.last_name || ''}`.toLowerCase().includes(q);
+      const matchEmail = (r.email || '').toLowerCase().includes(q);
+      const matchPhone = (r.mobile_number || r.phone_number || '').toLowerCase().includes(q);
+      const matchZone = (r.zone || '').toLowerCase().includes(q);
       if (!matchName && !matchEmail && !matchPhone && !matchZone) return false;
     }
     return true;
   });
+
+  const getDocTypeLabel = (type) => {
+    switch (type) {
+      case 'BARANGAY_CLEARANCE': return 'Brgy Clearance';
+      case 'VOTER_ID': return "Voter's ID";
+      case 'CMU_ID': return 'CMU ID';
+      case 'GOV_ID': return 'Gov ID';
+      default: return 'ID Proof';
+    }
+  };
 
   if (loading) return <LoadingSpinner text="Loading front-desk resident registry..." />;
 
@@ -65,15 +88,18 @@ export const StaffResidentsDirectoryPage = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-teal-100 text-teal-800">
-              Staff Operations
+              Barangay Front-Desk Desk
+            </span>
+            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
+              Maramag, Bukidnon
             </span>
           </div>
           <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
             <Users className="w-6 h-6 text-teal-600" />
-            Front-Desk Resident Quick Directory
+            Resident Directory & ID Verification Desk
           </h1>
           <p className="text-xs sm:text-sm text-slate-500">
-            Rapid resident identity verification and contact lookup for walk-ins and telephone inquiries at the barangay hall.
+            Rapid residency proof auditing, CMU student verification, and contact lookup for walk-ins and phone calls.
           </p>
         </div>
 
@@ -88,7 +114,7 @@ export const StaffResidentsDirectoryPage = () => {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
           <input
             type="text"
-            placeholder="Type citizen name, phone number, or street..."
+            placeholder="Type citizen name, phone number, or purok/sitio..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full text-xs pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:outline-hidden"
@@ -118,7 +144,7 @@ export const StaffResidentsDirectoryPage = () => {
           {filteredResidents.map((resident) => (
             <div
               key={resident.id}
-              className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs hover:border-teal-300 transition-all flex flex-col justify-between"
+              className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs hover:border-teal-300 transition-all flex flex-col justify-between space-y-4"
             >
               <div>
                 <div className="flex items-start justify-between gap-2">
@@ -138,21 +164,36 @@ export const StaffResidentsDirectoryPage = () => {
                     <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 flex items-center gap-0.5">
                       <CheckCircle className="w-2.5 h-2.5" /> VERIFIED
                     </span>
+                  ) : resident.verification_status === 'REJECTED' ? (
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-rose-100 text-rose-800 flex items-center gap-0.5">
+                      <XCircle className="w-2.5 h-2.5" /> REJECTED
+                    </span>
                   ) : (
                     <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-100 text-amber-800 flex items-center gap-0.5">
-                      <Clock className="w-2.5 h-2.5" /> UNVERIFIED
+                      <Clock className="w-2.5 h-2.5" /> PENDING
                     </span>
                   )}
                 </div>
 
-                <div className="mt-4 space-y-1.5 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+                {/* ID Proof Indicator Pill */}
+                {resident.id_document_type && (
+                  <div className="mt-2.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-bold">
+                    <FileText className="w-3 h-3" />
+                    <span>Doc: {getDocTypeLabel(resident.id_document_type)}</span>
+                    {resident.id_document_url && (
+                      <span className="text-[9px] px-1 bg-indigo-200 text-indigo-900 rounded">Link Attached</span>
+                    )}
+                  </div>
+                )}
+
+                <div className="mt-3 space-y-1.5 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
                   <div className="flex items-center gap-2">
                     <MapPin className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-                    <span className="font-semibold text-slate-700">{resident.zone || 'No Zone Set'}</span>
+                    <span className="font-semibold text-slate-700">{resident.zone || 'No Purok Set'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>{resident.phone_number || 'No contact provided'}</span>
+                    <span>{resident.mobile_number || resident.phone_number || 'No contact provided'}</span>
                   </div>
                   <div className="flex items-center gap-2 truncate">
                     <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -161,19 +202,41 @@ export const StaffResidentsDirectoryPage = () => {
                 </div>
               </div>
 
-              {resident.verification_status !== 'VERIFIED' && (
-                <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <button
+                  onClick={() => setInspectingResident(resident)}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors flex items-center gap-1"
+                >
+                  <Eye className="w-3.5 h-3.5 text-slate-500" />
+                  Inspect ID
+                </button>
+
+                {resident.verification_status !== 'VERIFIED' && (
                   <button
                     onClick={() => handleVerifyInPerson(resident.id)}
                     className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-xs"
                   >
-                    <UserCheck className="w-3.5 h-3.5" /> In-Person ID Verify
+                    <UserCheck className="w-3.5 h-3.5" />
+                    Desk Verify
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Inspect ID Modal */}
+      {inspectingResident && (
+        <InspectIDModal
+          resident={inspectingResident}
+          onClose={() => setInspectingResident(null)}
+          onVerified={() => {
+            fetchResidents();
+            setInspectingResident(null);
+          }}
+        />
       )}
     </div>
   );

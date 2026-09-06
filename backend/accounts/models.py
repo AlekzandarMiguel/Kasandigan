@@ -73,6 +73,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         on_delete=models.SET_NULL,
         related_name='verified_residents'
     )
+    id_document_url = models.CharField(max_length=500, blank=True, null=True, help_text="Barangay clearance, Voter ID, or CMU ID proof")
+    id_document_type = models.CharField(max_length=50, blank=True, default='BARANGAY_CLEARANCE', choices=[
+        ('BARANGAY_CLEARANCE', 'Barangay Clearance'),
+        ('VOTER_ID', "COMELEC Voter's ID"),
+        ('CMU_ID', 'CMU Student / Faculty ID'),
+        ('GOV_ID', 'Government Issued ID')
+    ])
 
     assistance_radius = models.CharField(
         max_length=20,

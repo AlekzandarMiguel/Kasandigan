@@ -1,8 +1,41 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, LogOut, Menu, MapPin, HeartHandshake, Shield } from 'lucide-react';
+import { Bell, LogOut, Menu, MapPin, HeartHandshake, Shield, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useLanguage } from '../context/LanguageContext';
+
+export const LanguagePicker = () => {
+  const { lang, changeLanguage } = useLanguage();
+  return (
+    <div className="inline-flex items-center p-0.5 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-bold">
+      <button
+        type="button"
+        onClick={() => changeLanguage('en')}
+        className={`px-2 py-1 rounded-lg transition-all ${lang === 'en' ? 'bg-white text-emerald-800 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+        title="English"
+      >
+        EN
+      </button>
+      <button
+        type="button"
+        onClick={() => changeLanguage('ceb')}
+        className={`px-2 py-1 rounded-lg transition-all ${lang === 'ceb' ? 'bg-white text-emerald-800 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+        title="Bisaya (Cebuano)"
+      >
+        BIS
+      </button>
+      <button
+        type="button"
+        onClick={() => changeLanguage('fil')}
+        className={`px-2 py-1 rounded-lg transition-all ${lang === 'fil' ? 'bg-white text-emerald-800 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+        title="Filipino (Tagalog)"
+      >
+        FIL
+      </button>
+    </div>
+  );
+};
 
 export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
   const { user, logout, isResident } = useAuth();
@@ -36,6 +69,7 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
             </Link>
 
             <div className="flex items-center gap-3">
+              <LanguagePicker />
               <Link
                 to="/login"
                 className="text-sm font-semibold text-slate-700 hover:text-emerald-600 px-3 py-2 transition-colors"
@@ -93,6 +127,7 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
 
           {/* Right: Notifications & Quick Profile */}
           <div className="flex items-center gap-3">
+            <LanguagePicker />
             <Link
               to={isResident ? "/notifications" : "/staff/announcements"}
               className="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
