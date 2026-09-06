@@ -56,19 +56,29 @@ class AssistanceRequestViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         user = self.request.user
+        actual_requester = user
+
+        # Desk Intake: staff/admin can file on behalf of a walk-in resident
+        if user.role in ['BARANGAY_STAFF', 'BARANGAY_ADMIN', 'PLATFORM_ADMIN']:
+            walkin_id = self.request.data.get('requester_id')
+            if walkin_id:
+                target_user = User.objects.filter(id=walkin_id, barangay=user.barangay).first()
+                if target_user:
+                    actual_requester = target_user
+
         req_obj = serializer.save(
-            barangay=user.barangay,
-            requester=user,
+            barangay=actual_requester.barangay or user.barangay,
+            requester=actual_requester,
             status='PENDING'
         )
 
         AuditLogger.log(
             user=user,
             action='REQUEST_CREATION',
-            description=f"Created assistance request '{req_obj.title}' in {req_obj.zone}",
+            description=f"Created assistance request '{req_obj.title}' in {req_obj.zone} (for {actual_requester.full_name})",
             target_type='AssistanceRequest',
             target_id=str(req_obj.id),
-            barangay=user.barangay
+            barangay=req_obj.barangay
         )
 
         # Trigger Rule-Based Matching Engine
@@ -76,6 +86,31 @@ class AssistanceRequestViewSet(viewsets.ModelViewSet):
         if matches:
             req_obj.status = 'MATCHED'
             req_obj.save(update_fields=['status'])
+
+            # Auto-Dispatch logic: If requested or if EMERGENCY
+            auto_dispatch = self.request.data.get('auto_dispatch', False)
+            if auto_dispatch or req_obj.urgency == 'EMERGENCY':
+                limit = len(matches) if req_obj.urgency == 'EMERGENCY' else 3
+                for match in matches[:limit]:
+                    h_id = match.get('helper_id') or (isinstance(match.get('helper'), dict) and match['helper'].get('id'))
+                    helper_user = User.objects.filter(id=h_id).first() if h_id else None
+                    if helper_user:
+                        inv, created = AssistanceInvitation.objects.get_or_create(
+                            request=req_obj,
+                            helper=helper_user,
+                            defaults={
+                                'message': 'Auto-matched invitation based on trade skill & proximity.',
+                                'status': 'INVITED'
+                            }
+                        )
+                        score = match.get('total_score', match.get('score', 100))
+                        NotificationService.send(
+                            user=helper_user,
+                            title="Urgent Broadcast" if req_obj.urgency == 'EMERGENCY' else "New Auto-Matched Assistance Request",
+                            message=f"{actual_requester.full_name} needs assistance: '{req_obj.title}' in {req_obj.zone} (Match Score: {score}/100)",
+                            notif_type='INVITATION_RECEIVED',
+                            link=f"/requests/{req_obj.id}"
+                        )
 
     @action(detail=True, methods=['get'])
     def matches(self, request, pk=None):
@@ -212,6 +247,113 @@ class AssistanceRequestViewSet(viewsets.ModelViewSet):
 
             return Response(TicketMessageSerializer(msg).data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=['post'])
+    def auto_dispatch(self, request, pk=None):
+        req_obj = self.get_object()
+        user = request.user
+        if req_obj.requester != user and user.role not in ['BARANGAY_STAFF', 'BARANGAY_ADMIN', 'PLATFORM_ADMIN']:
+            return Response({'detail': 'Not authorized to dispatch invitations.'}, status=status.HTTP_403_FORBIDDEN)
+
+        matches = RuleBasedMatchingService.find_and_rank_helpers(req_obj)
+        if not matches:
+            return Response({'detail': 'No matching verified helpers currently available in this barangay.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        dispatched_count = 0
+        for match in matches[:3]:
+            h_id = match.get('helper_id') or (isinstance(match.get('helper'), dict) and match['helper'].get('id'))
+            helper_user = User.objects.filter(id=h_id).first() if h_id else None
+            if helper_user:
+                inv, created = AssistanceInvitation.objects.get_or_create(
+                    request=req_obj,
+                    helper=helper_user,
+                    defaults={'message': 'Auto-matched invitation based on trade skill & proximity.', 'status': 'INVITED'}
+                )
+                if created or inv.status == 'DECLINED':
+                    inv.status = 'INVITED'
+                    inv.save()
+                    score = match.get('total_score', match.get('score', 100))
+                    NotificationService.send(
+                        user=helper_user,
+                        title="Auto-Matched Assistance Request",
+                        message=f"{req_obj.requester.full_name} needs assistance: '{req_obj.title}' (Match Score: {score}/100)",
+                        notif_type='INVITATION_RECEIVED',
+                        link=f"/requests/{req_obj.id}"
+                    )
+                    dispatched_count += 1
+
+        req_obj.status = 'MATCHED'
+        req_obj.save(update_fields=['status'])
+        return Response({'detail': f"Auto-dispatched invitations to {dispatched_count} top-scored helpers.", 'dispatched_count': dispatched_count})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsBarangayStaffOrAdmin])
+    def reassign_helper(self, request, pk=None):
+        req_obj = self.get_object()
+        new_helper_id = request.data.get('helper_id')
+        reason = request.data.get('reason', 'Supervisor re-assignment')
+
+        if not new_helper_id:
+            return Response({'detail': 'helper_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        new_helper = User.objects.filter(id=new_helper_id, barangay=req_obj.barangay, is_active=True).first()
+        if not new_helper:
+            return Response({'detail': 'Target helper not found in this barangay.'}, status=status.HTTP_404_NOT_FOUND)
+
+        old_helper = req_obj.assigned_helper
+        req_obj.assigned_helper = new_helper
+        req_obj.status = 'ACCEPTED'
+        req_obj.save(update_fields=['assigned_helper', 'status'])
+
+        if old_helper:
+            NotificationService.send(
+                user=old_helper,
+                title="Assistance Task Re-assigned",
+                message=f"Ticket '{req_obj.title}' was re-assigned by barangay administration. Reason: {reason}",
+                notif_type='GENERAL',
+                link=f"/requests/{req_obj.id}"
+            )
+
+        NotificationService.send(
+            user=new_helper,
+            title="Assistance Ticket Assigned to You",
+            message=f"Barangay administration assigned you to assist with: '{req_obj.title}' in {req_obj.zone}",
+            notif_type='INVITATION_RECEIVED',
+            link=f"/requests/{req_obj.id}"
+        )
+
+        AuditLogger.log(
+            user=request.user,
+            action='ADMIN_ACTION',
+            description=f"Reassigned ticket #{req_obj.id} from {old_helper.full_name if old_helper else 'None'} to {new_helper.full_name}. Reason: {reason}",
+            target_type='AssistanceRequest',
+            target_id=str(req_obj.id),
+            barangay=req_obj.barangay
+        )
+
+        return Response({'detail': f"Helper successfully re-assigned to {new_helper.full_name}."})
+
+    @action(detail=True, methods=['post'])
+    def link_equipment(self, request, pk=None):
+        req_obj = self.get_object()
+        user = request.user
+        if user not in [req_obj.requester, req_obj.assigned_helper] and user.role not in ['BARANGAY_STAFF', 'BARANGAY_ADMIN']:
+            return Response({'detail': 'Not authorized.'}, status=status.HTTP_403_FORBIDDEN)
+
+        resource_id = request.data.get('resource_id')
+        if not resource_id:
+            return Response({'detail': 'resource_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        from resources.models import Resource
+        resource = Resource.objects.filter(id=resource_id, barangay=req_obj.barangay).first()
+        if not resource:
+            return Response({'detail': 'Community resource not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        req_obj.linked_resource = resource
+        req_obj.save(update_fields=['linked_resource'])
+        resource.status = 'BORROWED'
+        resource.save(update_fields=['status'])
+
+        return Response({'detail': f"Linked equipment '{resource.name}' to this assistance ticket."})
+
 
 class AssistanceInvitationViewSet(viewsets.ModelViewSet):
     serializer_class = AssistanceInvitationSerializer
@@ -304,16 +446,40 @@ class AssistanceWorkflowViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=True, methods=['post'])
+    def en_route(self, request, pk=None):
+        req_obj = AssistanceRequest.objects.filter(id=pk).first()
+        if not req_obj:
+            return Response({'detail': 'Request not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if request.user != req_obj.assigned_helper:
+            return Response({'detail': 'Only the assigned helper can mark en route.'}, status=status.HTTP_403_FORBIDDEN)
+
+        if req_obj.status != 'ACCEPTED':
+            return Response({'detail': f"Cannot mark en route from '{req_obj.status}' status."}, status=status.HTTP_400_BAD_REQUEST)
+
+        req_obj.status = 'EN_ROUTE'
+        req_obj.save(update_fields=['status'])
+
+        NotificationService.send(
+            user=req_obj.requester,
+            title="Helper is on the way!",
+            message=f"{req_obj.assigned_helper.full_name} is now en route to your location for '{req_obj.title}'.",
+            notif_type='GENERAL',
+            link=f"/requests/{req_obj.id}"
+        )
+
+        return Response({'detail': 'You are now marked as en route.', 'status': 'EN_ROUTE'})
+
+    @action(detail=True, methods=['post'])
     def start(self, request, pk=None):
         req_obj = AssistanceRequest.objects.filter(id=pk).first()
         if not req_obj:
             return Response({'detail': 'Request not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Either helper or requester can mark as started
         if request.user not in [req_obj.requester, req_obj.assigned_helper]:
             return Response({'detail': 'Not authorized to start this assistance.'}, status=status.HTTP_403_FORBIDDEN)
 
-        if req_obj.status != 'ACCEPTED':
+        if req_obj.status not in ['ACCEPTED', 'EN_ROUTE']:
             return Response({'detail': f"Cannot start assistance in '{req_obj.status}' status."}, status=status.HTTP_400_BAD_REQUEST)
 
         req_obj.status = 'IN_PROGRESS'
@@ -332,7 +498,7 @@ class AssistanceWorkflowViewSet(viewsets.ViewSet):
             NotificationService.send(
                 user=other_user,
                 title="Assistance In Progress",
-                message=f"Assistance for '{req_obj.title}' has started.",
+                message=f"Assistance for '{req_obj.title}' has officially started.",
                 notif_type='ASSISTANCE_STARTED',
                 link=f"/requests/{req_obj.id}"
             )
@@ -354,7 +520,7 @@ class AssistanceWorkflowViewSet(viewsets.ViewSet):
         req_obj.status = 'COMPLETED'
         req_obj.completed_at = timezone.now()
         proof_url = request.data.get('completion_proof_url', '').strip()
-        notes = request.data.get('completion_notes', '').strip()
+        notes = (request.data.get('completion_notes') or request.data.get('notes') or '').strip()
         update_fields = ['status', 'completed_at']
         if proof_url:
             req_obj.completion_proof_url = proof_url
@@ -406,4 +572,106 @@ class AssistanceWorkflowViewSet(viewsets.ViewSet):
             barangay=req_obj.barangay
         )
 
+        # Release linked community equipment back to available
+        if req_obj.linked_resource:
+            req_obj.linked_resource.status = 'AVAILABLE'
+            req_obj.linked_resource.save(update_fields=['status'])
+
         return Response({'detail': 'Assistance marked as completed.', 'status': 'COMPLETED'})
+
+    @action(detail=True, methods=['post'])
+    def propose_reschedule(self, request, pk=None):
+        req_obj = AssistanceRequest.objects.filter(id=pk).first()
+        if not req_obj:
+            return Response({'detail': 'Request not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if request.user not in [req_obj.requester, req_obj.assigned_helper]:
+            return Response({'detail': 'Not authorized to propose reschedule.'}, status=status.HTTP_403_FORBIDDEN)
+
+        new_date = request.data.get('preferred_date') or request.data.get('new_date')
+        new_time = request.data.get('preferred_time') or request.data.get('new_time') or 'Flexible'
+        reason = request.data.get('reason', '')
+
+        if not new_date:
+            return Response({'detail': 'preferred_date is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        req_obj.reschedule_proposed_date = new_date
+        req_obj.reschedule_proposed_time = new_time
+        req_obj.reschedule_proposed_by = request.user
+        req_obj.reschedule_reason = reason
+        req_obj.save(update_fields=[
+            'reschedule_proposed_date', 'reschedule_proposed_time',
+            'reschedule_proposed_by', 'reschedule_reason'
+        ])
+
+        other_user = req_obj.requester if request.user == req_obj.assigned_helper else req_obj.assigned_helper
+        if other_user:
+            NotificationService.send(
+                user=other_user,
+                title="Schedule Adjustment Proposed",
+                message=f"{request.user.full_name} proposed rescheduling '{req_obj.title}' to {new_date} ({new_time}).",
+                notif_type='GENERAL',
+                link=f"/requests/{req_obj.id}"
+            )
+
+        return Response({'detail': 'Reschedule proposal submitted.'})
+
+    @action(detail=True, methods=['post'])
+    def respond_reschedule(self, request, pk=None):
+        req_obj = AssistanceRequest.objects.filter(id=pk).first()
+        if not req_obj:
+            return Response({'detail': 'Request not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if request.user not in [req_obj.requester, req_obj.assigned_helper]:
+            return Response({'detail': 'Not authorized.'}, status=status.HTTP_403_FORBIDDEN)
+
+        if req_obj.reschedule_proposed_by == request.user:
+            return Response({'detail': 'You cannot respond to your own proposal.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        action_decision = request.data.get('action') # 'ACCEPT' or 'DECLINE'
+        proposer = req_obj.reschedule_proposed_by
+
+        if action_decision == 'ACCEPT':
+            req_obj.preferred_date = req_obj.reschedule_proposed_date
+            if req_obj.reschedule_proposed_time:
+                req_obj.preferred_time = req_obj.reschedule_proposed_time
+            req_obj.reschedule_proposed_date = None
+            req_obj.reschedule_proposed_time = ''
+            req_obj.reschedule_proposed_by = None
+            req_obj.reschedule_reason = ''
+            req_obj.save(update_fields=[
+                'preferred_date', 'preferred_time',
+                'reschedule_proposed_date', 'reschedule_proposed_time',
+                'reschedule_proposed_by', 'reschedule_reason'
+            ])
+
+            if proposer:
+                NotificationService.send(
+                    user=proposer,
+                    title="Reschedule Proposal Accepted",
+                    message=f"The new schedule for '{req_obj.title}' was accepted.",
+                    notif_type='GENERAL',
+                    link=f"/requests/{req_obj.id}"
+                )
+            return Response({'detail': 'New schedule accepted and updated.'})
+
+        else:
+            req_obj.reschedule_proposed_date = None
+            req_obj.reschedule_proposed_time = ''
+            req_obj.reschedule_proposed_by = None
+            req_obj.reschedule_reason = ''
+            req_obj.save(update_fields=[
+                'reschedule_proposed_date', 'reschedule_proposed_time',
+                'reschedule_proposed_by', 'reschedule_reason'
+            ])
+
+            if proposer:
+                NotificationService.send(
+                    user=proposer,
+                    title="Reschedule Proposal Declined",
+                    message=f"The reschedule proposal for '{req_obj.title}' was declined.",
+                    notif_type='GENERAL',
+                    link=f"/requests/{req_obj.id}"
+                )
+            return Response({'detail': 'Reschedule proposal declined.'})
+

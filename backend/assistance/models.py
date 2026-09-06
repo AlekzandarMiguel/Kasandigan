@@ -5,6 +5,7 @@ class AssistanceRequest(models.Model):
         ('PENDING', 'Pending'),
         ('MATCHED', 'Matched'),
         ('ACCEPTED', 'Accepted'),
+        ('EN_ROUTE', 'Helper En Route'),
         ('IN_PROGRESS', 'In Progress'),
         ('COMPLETED', 'Completed'),
         ('CANCELLED', 'Cancelled'),
@@ -30,6 +31,7 @@ class AssistanceRequest(models.Model):
     urgency = models.CharField(max_length=20, choices=URGENCY_CHOICES, default='MEDIUM')
     additional_notes = models.TextField(blank=True, default='')
     attachment_url = models.CharField(max_length=255, blank=True, default='')
+    helpers_needed = models.PositiveIntegerField(default=1, help_text="Number of volunteers needed")
     
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     assigned_helper = models.ForeignKey(
@@ -39,6 +41,27 @@ class AssistanceRequest(models.Model):
         blank=True,
         related_name='helping_requests'
     )
+
+    # Equipment Lending Integration
+    linked_resource = models.ForeignKey(
+        'resources.Resource',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='linked_requests'
+    )
+
+    # Reschedule Proposal
+    reschedule_proposed_date = models.DateField(null=True, blank=True)
+    reschedule_proposed_time = models.CharField(max_length=100, blank=True, default='')
+    reschedule_proposed_by = models.ForeignKey(
+        'accounts.User',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='reschedule_proposals'
+    )
+    reschedule_reason = models.TextField(blank=True, default='')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

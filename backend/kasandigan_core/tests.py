@@ -9,6 +9,7 @@ from skills.models import AssistanceCategory, Skill, UserSkill, UserAvailability
 from assistance.models import AssistanceRequest, AssistanceInvitation, AssistanceTransaction
 from matching.matching_service import RuleBasedMatchingService
 from ratings.models import Rating
+from resources.models import Resource
 
 class KasandiganCoreTests(TestCase):
     def setUp(self):
@@ -208,3 +209,160 @@ class KasandiganCoreTests(TestCase):
         # Should fail with 400 validation error
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("completed", str(response.data))
+
+    def test_workflow_en_route_and_start_and_complete(self):
+        """Helper transitions: ACCEPTED -> EN_ROUTE -> IN_PROGRESS -> COMPLETED"""
+        req = AssistanceRequest.objects.create(
+            barangay=self.barangay_a,
+            requester=self.requester_a,
+            assigned_helper=self.helper_a,
+            title="Roof Leak Repair",
+            description="Fixing minor roof leak",
+            category=self.cat_tech,
+            preferred_date=date.today(),
+            zone="Zone 2",
+            status="ACCEPTED"
+        )
+
+        self.client.force_authenticate(user=self.helper_a)
+
+        # 1. En Route
+        res_en_route = self.client.post(f'/api/assistance/workflow/{req.id}/en_route/')
+        self.assertEqual(res_en_route.status_code, status.HTTP_200_OK)
+        req.refresh_from_db()
+        self.assertEqual(req.status, 'EN_ROUTE')
+
+        # 2. Start Assistance (from EN_ROUTE)
+        res_start = self.client.post(f'/api/assistance/workflow/{req.id}/start/')
+        self.assertEqual(res_start.status_code, status.HTTP_200_OK)
+        req.refresh_from_db()
+        self.assertEqual(req.status, 'IN_PROGRESS')
+
+        # 3. Complete Assistance
+        res_complete = self.client.post(f'/api/assistance/workflow/{req.id}/complete/', {
+            'notes': 'Job completed cleanly and safely.'
+        })
+        self.assertEqual(res_complete.status_code, status.HTTP_200_OK)
+        req.refresh_from_db()
+        self.assertEqual(req.status, 'COMPLETED')
+        self.assertEqual(req.completion_notes, 'Job completed cleanly and safely.')
+
+    def test_workflow_propose_and_respond_reschedule(self):
+        """Proposing and accepting reschedule updates schedule and resets proposal fields"""
+        req = AssistanceRequest.objects.create(
+            barangay=self.barangay_a,
+            requester=self.requester_a,
+            assigned_helper=self.helper_a,
+            title="Furniture Moving",
+            description="Move heavy table",
+            category=self.cat_tech,
+            preferred_date=date.today(),
+            preferred_time="Morning (8:00 AM - 12:00 PM)",
+            zone="Zone 2",
+            status="ACCEPTED"
+        )
+
+        # Helper proposes reschedule
+        new_date = str(date.today() + timedelta(days=2))
+        self.client.force_authenticate(user=self.helper_a)
+        res_prop = self.client.post(f'/api/assistance/workflow/{req.id}/propose_reschedule/', {
+            'new_date': new_date,
+            'new_time': 'Afternoon (2:00 PM)',
+            'reason': 'Rain forecast'
+        })
+        self.assertEqual(res_prop.status_code, status.HTTP_200_OK)
+        req.refresh_from_db()
+        self.assertEqual(str(req.reschedule_proposed_date), new_date)
+        self.assertEqual(req.reschedule_proposed_by, self.helper_a)
+
+        # Requester accepts proposal
+        self.client.force_authenticate(user=self.requester_a)
+        res_resp = self.client.post(f'/api/assistance/workflow/{req.id}/respond_reschedule/', {
+            'action': 'ACCEPT'
+        })
+        self.assertEqual(res_resp.status_code, status.HTTP_200_OK)
+        req.refresh_from_db()
+        self.assertEqual(str(req.preferred_date), new_date)
+        self.assertEqual(req.preferred_time, 'Afternoon (2:00 PM)')
+        self.assertIsNone(req.reschedule_proposed_date)
+
+    def test_link_equipment_and_auto_release_on_complete(self):
+        """Borrowing barangay equipment links it to ticket, sets BORROWED, and auto-releases to AVAILABLE upon completion"""
+        tool = Resource.objects.create(
+            barangay=self.barangay_a,
+            owner=self.admin_a,
+            name="Power Drill Set",
+            category="TOOLS",
+            condition="EXCELLENT",
+            zone="Zone 2",
+            status="AVAILABLE"
+        )
+
+        req = AssistanceRequest.objects.create(
+            barangay=self.barangay_a,
+            requester=self.requester_a,
+            assigned_helper=self.helper_a,
+            title="Cabinet Installation",
+            description="Install wooden wall shelf",
+            category=self.cat_tech,
+            preferred_date=date.today(),
+            zone="Zone 2",
+            status="IN_PROGRESS"
+        )
+
+        self.client.force_authenticate(user=self.helper_a)
+
+        # Link equipment to request
+        res_link = self.client.post(f'/api/requests/{req.id}/link_equipment/', {
+            'resource_id': tool.id
+        })
+        self.assertEqual(res_link.status_code, status.HTTP_200_OK)
+        req.refresh_from_db()
+        tool.refresh_from_db()
+        self.assertEqual(req.linked_resource, tool)
+        self.assertEqual(tool.status, 'BORROWED')
+
+        # Complete request -> tool auto-releases to AVAILABLE
+        res_comp = self.client.post(f'/api/assistance/workflow/{req.id}/complete/', {})
+        self.assertEqual(res_comp.status_code, status.HTTP_200_OK)
+        tool.refresh_from_db()
+        self.assertEqual(tool.status, 'AVAILABLE')
+
+    def test_staff_walk_in_intake_and_auto_dispatch(self):
+        """Barangay staff can file an intake request on behalf of a citizen resident and trigger auto_dispatch"""
+        # Create a staff member
+        staff = User.objects.create_user(
+            email="desk.officer@kasandigan.gov.ph",
+            password="Password123!",
+            first_name="Staff",
+            last_name="Officer",
+            role="BARANGAY_STAFF",
+            barangay=self.barangay_a,
+            verification_status="VERIFIED"
+        )
+
+        self.client.force_authenticate(user=staff)
+
+        payload = {
+            'requester_id': self.requester_a.id,
+            'title': 'Walk-In Senior Citizen Grocery Errand',
+            'description': 'Senior resident needs assistance transporting grocery sacks from market',
+            'category': self.cat_tech.id,
+            'preferred_date': str(date.today()),
+            'preferred_time': 'Morning',
+            'zone': 'Zone 2',
+            'urgency': 'HIGH',
+            'helpers_needed': 2,
+            'auto_dispatch': True,
+        }
+
+        res = self.client.post('/api/requests/', payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        created_req = AssistanceRequest.objects.get(id=res.data['id'])
+        self.assertEqual(created_req.requester, self.requester_a)
+        self.assertEqual(created_req.helpers_needed, 2)
+        # Verify auto-dispatch created an invitation for helper_a
+        invitation = AssistanceInvitation.objects.filter(request=created_req, helper=self.helper_a).first()
+        self.assertIsNotNone(invitation)
+        self.assertEqual(invitation.status, 'INVITED')
+

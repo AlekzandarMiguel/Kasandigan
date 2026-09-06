@@ -2,6 +2,7 @@ from rest_framework import serializers
 from assistance.models import AssistanceRequest, AssistanceInvitation, AssistanceTransaction, TicketMessage
 from skills.serializers import AssistanceCategorySerializer, SkillSerializer
 from accounts.serializers import UserSerializer
+from resources.models import Resource
 
 class AssistanceRequestSerializer(serializers.ModelSerializer):
     requester_name = serializers.ReadOnlyField(source='requester.full_name')
@@ -12,6 +13,9 @@ class AssistanceRequestSerializer(serializers.ModelSerializer):
     assigned_helper_name = serializers.ReadOnlyField(source='assigned_helper.full_name')
     assigned_helper_avatar = serializers.ReadOnlyField(source='assigned_helper.avatar_url')
     assigned_helper_rating = serializers.ReadOnlyField(source='assigned_helper.rating_average')
+    linked_resource_name = serializers.ReadOnlyField(source='linked_resource.name')
+    linked_resource_category = serializers.ReadOnlyField(source='linked_resource.category')
+    reschedule_proposed_by_name = serializers.ReadOnlyField(source='reschedule_proposed_by.full_name')
     invitation_status = serializers.SerializerMethodField()
     has_rating = serializers.SerializerMethodField()
 
@@ -21,15 +25,20 @@ class AssistanceRequestSerializer(serializers.ModelSerializer):
             'id', 'barangay', 'requester', 'requester_name', 'requester_avatar',
             'requester_rating', 'title', 'description', 'category', 'category_name',
             'required_skill', 'required_skill_name', 'preferred_date',
-            'preferred_time', 'zone', 'urgency', 'status', 'assigned_helper',
-            'assigned_helper_name', 'assigned_helper_avatar', 'assigned_helper_rating',
+            'preferred_time', 'zone', 'urgency', 'status', 'helpers_needed',
+            'assigned_helper', 'assigned_helper_name', 'assigned_helper_avatar', 'assigned_helper_rating',
             'additional_notes', 'attachment_url', 'invitation_status', 'has_rating',
             'completion_proof_url', 'completion_notes',
+            'linked_resource', 'linked_resource_name', 'linked_resource_category',
+            'reschedule_proposed_date', 'reschedule_proposed_time',
+            'reschedule_proposed_by', 'reschedule_proposed_by_name', 'reschedule_reason',
             'created_at', 'updated_at', 'completed_at'
         ]
         read_only_fields = [
             'id', 'barangay', 'requester', 'status', 'assigned_helper',
             'completion_proof_url', 'completion_notes',
+            'linked_resource', 'reschedule_proposed_date', 'reschedule_proposed_time',
+            'reschedule_proposed_by', 'reschedule_reason',
             'created_at', 'updated_at', 'completed_at'
         ]
 
@@ -46,19 +55,26 @@ class AssistanceRequestSerializer(serializers.ModelSerializer):
 
 
 class AssistanceRequestCreateSerializer(serializers.ModelSerializer):
+    auto_dispatch = serializers.BooleanField(write_only=True, required=False, default=False)
+
     class Meta:
         model = AssistanceRequest
         fields = [
-            'title', 'description', 'category', 'required_skill',
+            'id', 'title', 'description', 'category', 'required_skill',
             'preferred_date', 'preferred_time', 'zone', 'urgency',
-            'additional_notes', 'attachment_url'
+            'helpers_needed', 'additional_notes', 'attachment_url', 'auto_dispatch'
         ]
+        read_only_fields = ['id']
 
     def validate(self, attrs):
         user = self.context['request'].user
         if user.role == 'RESIDENT' and user.verification_status != 'VERIFIED':
             raise serializers.ValidationError("Only verified residents can post assistance requests.")
         return attrs
+
+    def create(self, validated_data):
+        validated_data.pop('auto_dispatch', None)
+        return super().create(validated_data)
 
 
 class AssistanceInvitationSerializer(serializers.ModelSerializer):
