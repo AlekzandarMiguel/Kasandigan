@@ -63,6 +63,7 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
             { to: '/admin/dilg-report', label: 'DILG Monthly Report', icon: Award },
             { to: '/admin/reports', label: 'Resident Reports', icon: Flag },
             { to: '/admin/announcements', label: 'Announcements', icon: Megaphone },
+            { to: '/notifications', label: 'Notifications', icon: Bell },
             { to: '/admin/activity-logs', label: 'Activity Logs', icon: FileText },
             { to: '/admin/settings', label: 'Barangay Settings', icon: Settings },
           ],
@@ -86,6 +87,7 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
             { to: '/staff/requests', label: 'Community Requests', icon: HeartHandshake },
             { to: '/staff/reports', label: 'Triage Reports', icon: Flag },
             { to: '/staff/announcements', label: 'Barangay Notices', icon: Megaphone },
+            { to: '/notifications', label: 'Notifications', icon: Bell },
           ],
         },
       ];
@@ -97,6 +99,7 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
         title: 'Community Aid',
         links: [
           { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+          { to: '/announcements', label: 'Barangay Bulletins', icon: Megaphone },
           { to: '/requests', label: 'Assistance Requests', icon: HeartHandshake },
           { to: '/requests/create', label: 'Request Help', icon: PlusCircle },
           { to: '/assistance', label: 'My Assistance Activity', icon: CheckCircle },

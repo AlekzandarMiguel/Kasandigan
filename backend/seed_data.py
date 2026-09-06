@@ -19,6 +19,7 @@ from ratings.models import Rating
 from announcements.models import Announcement
 from resources.models import Resource
 from reports.models import Report
+from notifications.models import Notification
 
 def run_seed():
     print("Seeding Kasandigan database...")
@@ -759,6 +760,91 @@ def run_seed():
         defaults={
             "description": "Suspicious anonymous account sending commercial promotional links through chat.",
             "status": "PENDING"
+        }
+    )
+
+    # 8. Realistic Personal Resident & Staff Notifications
+    Notification.objects.get_or_create(
+        user=maria,
+        title="Volunteer Invitation: Grade 6 Math Tutoring",
+        defaults={
+            "barangay": b_southpob,
+            "message": "Elena Reyes recommended you for elementary math & reading support in Purok 2 - Centro.",
+            "type": "INVITATION_RECEIVED",
+            "link": "/assistance",
+            "is_read": False,
+        }
+    )
+
+    Notification.objects.get_or_create(
+        user=maria,
+        title="Resident Profile Verified",
+        defaults={
+            "barangay": b_southpob,
+            "message": "Mabuhay Maria! Your resident account has been officially verified by Officer Corazon Villanueva. You now have full access to community aid requests and volunteering.",
+            "type": "ACCOUNT_VERIFIED",
+            "link": "/skills",
+            "is_read": True,
+        }
+    )
+
+    Notification.objects.get_or_create(
+        user=maria,
+        title="Resource Borrowing Confirmed",
+        defaults={
+            "barangay": b_southpob,
+            "message": "Your request to borrow 10 Folding Event Chairs for community outreach has been approved.",
+            "type": "RESOURCE_BORROWED",
+            "link": "/resources",
+            "is_read": False,
+        }
+    )
+
+    Notification.objects.get_or_create(
+        user=cardo,
+        title="Urgent Skill Match: Farm Generator Repair",
+        defaults={
+            "barangay": b_southpob,
+            "message": "A high-priority assistance request matching your Electrical and Mechanical skills was posted in Purok 1 - Riverside.",
+            "type": "INVITATION_RECEIVED",
+            "link": "/requests",
+            "is_read": False,
+        }
+    )
+
+    Notification.objects.get_or_create(
+        user=cardo,
+        title="New 5-Star Neighbor Rating",
+        defaults={
+            "barangay": b_southpob,
+            "message": "Juan Dela Cruz commended your help: 'Prompt arrival and fixed our water pipe quickly. Salamat Ka-Barangay!'",
+            "type": "RATING_RECEIVED",
+            "link": "/assistance",
+            "is_read": True,
+        }
+    )
+
+    Notification.objects.get_or_create(
+        user=b_staff,
+        title="New Resident Verification Request",
+        defaults={
+            "barangay": b_southpob,
+            "message": "A resident in Purok 6 - Sayre Highway submitted a Barangay ID for verification.",
+            "type": "GENERAL",
+            "link": "/staff/verifications",
+            "is_read": False,
+        }
+    )
+
+    Notification.objects.get_or_create(
+        user=b_staff,
+        title="Community Incident Report Submitted",
+        defaults={
+            "barangay": b_southpob,
+            "message": "Maria Santos submitted a spam report regarding unauthorized commercial links.",
+            "type": "REPORT_STATUS_UPDATED",
+            "link": "/staff/reports",
+            "is_read": False,
         }
     )
 

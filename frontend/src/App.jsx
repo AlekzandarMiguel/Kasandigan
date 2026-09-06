@@ -25,6 +25,7 @@ import SkillsAvailabilityPage from './pages/resident/SkillsAvailabilityPage';
 import AssistanceTrackerPage from './pages/resident/AssistanceTrackerPage';
 import ResourcesLendingPage from './pages/resident/ResourcesLendingPage';
 import NotificationsPage from './pages/resident/NotificationsPage';
+import ResidentAnnouncementsPage from './pages/resident/ResidentAnnouncementsPage';
 import ProfileSettingsPage from './pages/resident/ProfileSettingsPage';
 import VolunteerCertificatePage from './pages/resident/VolunteerCertificatePage';
 
@@ -87,6 +88,14 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   return children;
 };
 
+const DynamicUserLayout = () => {
+  const { user } = useAuth();
+  if (user?.role === 'RESIDENT') {
+    return <ResidentLayout />;
+  }
+  return <AdminLayout />;
+};
+
 export function App() {
   return (
     <AuthProvider>
@@ -112,6 +121,7 @@ export function App() {
               }
             >
               <Route path="/dashboard" element={<ResidentDashboard />} />
+              <Route path="/announcements" element={<ResidentAnnouncementsPage />} />
               <Route path="/requests" element={<AssistanceRequestsList />} />
               <Route path="/requests/create" element={<CreateRequestPage />} />
               <Route path="/requests/:id" element={<RequestDetailPage />} />
@@ -119,8 +129,18 @@ export function App() {
               <Route path="/assistance" element={<AssistanceTrackerPage />} />
               <Route path="/resources" element={<ResourcesLendingPage />} />
               <Route path="/certificate" element={<VolunteerCertificatePage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/settings" element={<ProfileSettingsPage />} />
+            </Route>
+
+            {/* Universally Accessible Authenticated Notifications Route */}
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={['RESIDENT', 'BARANGAY_STAFF', 'BARANGAY_ADMIN', 'PLATFORM_ADMIN']}>
+                  <DynamicUserLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/notifications" element={<NotificationsPage />} />
             </Route>
 
             {/* Barangay Staff Routes */}

@@ -129,7 +129,7 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
           <div className="flex items-center gap-3">
             <LanguagePicker />
             <Link
-              to={isResident ? "/notifications" : "/staff/announcements"}
+              to="/notifications"
               className="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
               title="Notifications"
             >
