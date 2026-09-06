@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -35,21 +36,14 @@ export const BarangayDashboard = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-800 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-sm">
-        <div className="max-w-2xl space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold">
-            <Building2 className="w-3.5 h-3.5" />
-            <span>Barangay Tenant Administrator • {metrics?.barangay_name || user?.barangay_details?.name}</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black">
-            Barangay Governance Console
-          </h1>
-          <p className="text-slate-300 text-xs sm:text-sm">
-            Oversee community assistance workflows, resident records, staff delegations, and category taxonomies.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        icon={Building2}
+        badge={`Barangay Tenant Administrator • ${metrics?.barangay_name || user?.barangay_details?.name || 'South Poblacion'}`}
+        badgeIcon={Building2}
+        title="Barangay Governance Console"
+        description="Oversee community assistance workflows, resident records, staff delegations, and category taxonomies."
+        theme="slate"
+      />
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

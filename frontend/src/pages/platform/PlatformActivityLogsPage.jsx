@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { ShieldAlert, Filter, Search, Download, Building2, User, Globe, Clock, CheckCircle2 } from 'lucide-react';
 import api from '../../services/api';
@@ -72,32 +73,24 @@ export const PlatformActivityLogsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-800">
-              SaaS Infrastructure
-            </span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-            <ShieldAlert className="w-6 h-6 text-indigo-600" />
-            Global Platform Audit & Security Logs
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Immutable cross-tenant audit trail tracking authentication, tenant provisioning, privilege changes, and security events.
-          </p>
-        </div>
-
-        <button
-          onClick={exportLogs}
-          disabled={filteredLogs.length === 0}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all shadow-xs disabled:opacity-50"
-        >
-          <Download className="w-4 h-4 text-slate-500" />
-          Export Audit CSV
-        </button>
-      </div>
+      <PageHeader
+        icon={ShieldAlert}
+        badge="SaaS Infrastructure & Security Auditing"
+        badgeIcon={ShieldAlert}
+        title="Global Platform Audit & Security Logs"
+        description="Immutable cross-tenant audit trail tracking authentication, tenant provisioning, privilege changes, and security events."
+        theme="indigo"
+        actions={
+          <button
+            onClick={exportLogs}
+            disabled={filteredLogs.length === 0}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            Export Audit CSV
+          </button>
+        }
+      />
 
       {/* Security Telemetry Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

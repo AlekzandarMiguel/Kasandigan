@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import {
   User, ShieldCheck, Lock, UserX, Star, MapPin,
@@ -87,15 +88,13 @@ export const ProfileSettingsPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-          <User className="w-6 h-6 text-emerald-600" />
-          Profile & Security Settings
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          Manage your personal details, residency verification badge, and safety settings.
-        </p>
-      </div>
+      <PageHeader
+        icon={User}
+        badge="Resident Account Profile"
+        badgeIcon={User}
+        title="Profile & Security Settings"
+        description="Manage your personal details, residency verification badge, and safety preferences."
+      />
 
       {message && (
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">

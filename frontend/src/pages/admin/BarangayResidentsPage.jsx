@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Users, Search, Filter, ShieldCheck, ShieldAlert, CheckCircle, XCircle, Phone, MapPin, Mail, Ban, UserCheck, Star } from 'lucide-react';
 import api from '../../services/api';
@@ -62,30 +63,20 @@ export const BarangayResidentsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              Barangay Administration
-            </span>
+      <PageHeader
+        icon={Users}
+        badge="Barangay Administration"
+        badgeIcon={Users}
+        title="Resident Master Directory"
+        description="Comprehensive registry of registered barangay residents, verification records, zones, and account statuses."
+        theme="slate"
+        actions={
+          <div className="px-4 py-2 bg-white/15 border border-white/20 rounded-xl text-xs font-bold text-white flex items-center gap-2 backdrop-blur-xs">
+            <UserCheck className="w-4 h-4 text-emerald-400" />
+            <span>{residents.filter(r => r.verification_status === 'VERIFIED').length} Verified Residents</span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-            <Users className="w-6 h-6 text-emerald-600" />
-            Resident Master Directory
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Comprehensive registry of registered barangay residents, verification records, zones, and account statuses.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="px-3.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800 flex items-center gap-1.5">
-            <UserCheck className="w-4 h-4 text-emerald-600" />
-            {residents.filter(r => r.verification_status === 'VERIFIED').length} Verified Residents
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Filter and Search Bar */}
       <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center gap-3">

@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Award, Printer, ArrowLeft, ShieldCheck, Star, QrCode, Building2, CheckCircle2 } from 'lucide-react';
@@ -33,20 +34,30 @@ export const VolunteerCertificatePage = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Non-Printable Header Controls */}
-      <div className="flex items-center justify-between print:hidden">
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
-
-        <button
-          onClick={handlePrint}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
-        >
-          <Printer className="w-4 h-4" /> Print / Save as PDF
-        </button>
+      <div className="print:hidden">
+        <PageHeader
+          icon={Award}
+          badge="Official Civic Recognition"
+          badgeIcon={Award}
+          title="Volunteer Certificate & Honors"
+          description="Official commendation of accredited volunteer hours and community service in Maramag, Bukidnon."
+          actions={
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-white/80 hover:text-white transition-colors cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" /> Back
+              </button>
+              <button
+                onClick={handlePrint}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
+              >
+                <Printer className="w-4 h-4 text-emerald-700" /> Print / Save PDF
+              </button>
+            </div>
+          }
+        />
       </div>
 
       {/* The Printable Certificate Container */}

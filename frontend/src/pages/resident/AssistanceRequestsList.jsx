@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
@@ -68,26 +69,22 @@ export const AssistanceRequestsList = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <HeartHandshake className="w-6 h-6 text-emerald-600" />
-            Assistance Requests
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Browse requests in {user?.barangay_details?.name || 'your barangay'} or request help from neighbors.
-          </p>
-        </div>
-
-        <Link
-          to="/requests/create"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-sm transition-all shrink-0"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>New Request</span>
-        </Link>
-      </div>
+      <PageHeader
+        icon={HeartHandshake}
+        badge={`Community Mutual Aid • ${user?.barangay_details?.name || 'Maramag'}`}
+        badgeIcon={HeartHandshake}
+        title="Assistance Requests"
+        description={`Browse requests in ${user?.barangay_details?.name || 'your barangay'} or request help from neighbors.`}
+        actions={
+          <Link
+            to="/requests/create"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all shrink-0"
+          >
+            <PlusCircle className="w-4 h-4 text-emerald-700" />
+            <span>New Request</span>
+          </Link>
+        }
+      />
 
       {/* Navigation Tabs */}
       <div className="flex border-b border-slate-200 overflow-x-auto gap-2">

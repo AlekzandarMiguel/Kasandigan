@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { FileText, Clock, User, Shield, Search } from 'lucide-react';
 import api from '../../services/api';
@@ -31,32 +32,30 @@ export const ActivityLogsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <FileText className="w-6 h-6 text-emerald-600" />
-            Barangay Activity & Audit Logs
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Immutable audit trail of verifications, suspensions, assistance transactions, and administrative changes.
-          </p>
-        </div>
-
-        <select
-          value={actionFilter}
-          onChange={(e) => setActionFilter(e.target.value)}
-          className="text-xs px-3.5 py-2 bg-white rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
-        >
-          <option value="">All Logged Actions</option>
-          <option value="ACCOUNT_VERIFICATION">Account Verification</option>
-          <option value="ACCOUNT_SUSPENSION">Account Suspension</option>
-          <option value="REQUEST_CREATION">Request Creation</option>
-          <option value="REQUEST_COMPLETION">Request Completion</option>
-          <option value="RATING_SUBMISSION">Rating Submission</option>
-          <option value="ANNOUNCEMENT_POSTED">Announcement Broadcast</option>
-          <option value="ADMIN_ACTION">Administrative Action</option>
-        </select>
-      </div>
+      <PageHeader
+        icon={FileText}
+        badge="Security & Governance Audit Trail"
+        badgeIcon={FileText}
+        title="Barangay Activity & Audit Logs"
+        description="Immutable audit trail of verifications, suspensions, assistance transactions, and administrative changes."
+        theme="slate"
+        actions={
+          <select
+            value={actionFilter}
+            onChange={(e) => setActionFilter(e.target.value)}
+            className="text-xs px-3.5 py-2.5 bg-white text-slate-900 font-bold rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden cursor-pointer shadow-md"
+          >
+            <option value="">All Logged Actions</option>
+            <option value="ACCOUNT_VERIFICATION">Account Verification</option>
+            <option value="ACCOUNT_SUSPENSION">Account Suspension</option>
+            <option value="REQUEST_CREATION">Request Creation</option>
+            <option value="REQUEST_COMPLETION">Request Completion</option>
+            <option value="RATING_SUBMISSION">Rating Submission</option>
+            <option value="ANNOUNCEMENT_POSTED">Announcement Broadcast</option>
+            <option value="ADMIN_ACTION">Administrative Action</option>
+          </select>
+        }
+      />
 
       {logs.length > 0 ? (
         <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">

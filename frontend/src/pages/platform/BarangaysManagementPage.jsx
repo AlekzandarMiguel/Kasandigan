@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Building2, Plus, Search, Shield, MapPin, Edit2, X } from 'lucide-react';
 import api from '../../services/api';
@@ -80,25 +81,23 @@ export const BarangaysManagementPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-indigo-600" />
-            Barangay Tenants Provisioning
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Provision, configure, and isolate barangay tenants operating on the SaaS platform.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-sm transition-all shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Provision New Barangay</span>
-        </button>
-      </div>
+      <PageHeader
+        icon={Building2}
+        badge="Multi-Tenant SaaS Administration"
+        badgeIcon={Building2}
+        title="Barangay Tenants Provisioning"
+        description="Provision, configure, and isolate barangay tenants operating on the SaaS platform."
+        theme="indigo"
+        actions={
+          <button
+            onClick={() => setModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Provision New Barangay</span>
+          </button>
+        }
+      />
 
       {message && (
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">

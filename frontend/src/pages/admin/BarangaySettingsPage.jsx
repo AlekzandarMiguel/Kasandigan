@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Settings, Building2, MapPin, Phone, Clock, User, Save, CheckCircle, Shield, Plus, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -86,21 +87,14 @@ export const BarangaySettingsPage = () => {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-            Barangay Administration
-          </span>
-        </div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-          <Building2 className="w-6 h-6 text-emerald-600" />
-          Barangay Hall Profile & Tenant Configuration
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          Configure official barangay credentials, public hotline numbers, hall office hours, and recognized community zones/puroks.
-        </p>
-      </div>
+      <PageHeader
+        icon={Building2}
+        badge="Barangay Tenant Configuration"
+        badgeIcon={Building2}
+        title="Barangay Hall Profile & Tenant Configuration"
+        description="Configure official barangay credentials, public hotline numbers, hall office hours, and recognized community zones/puroks."
+        theme="slate"
+      />
 
       {saved && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center gap-3 text-sm font-semibold animate-fade-in">

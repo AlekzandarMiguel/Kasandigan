@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Wrench, Calendar, Clock, Plus, Trash2, CheckCircle2, ShieldCheck, MapPin, Sparkles, Award, Printer } from 'lucide-react';
@@ -139,15 +140,13 @@ export const SkillsAvailabilityPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-          <Wrench className="w-6 h-6 text-emerald-600" />
-          Helper Profile & Skills
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          Configure skills you can offer and your available hours to receive matched assistance invitations.
-        </p>
-      </div>
+      <PageHeader
+        icon={Wrench}
+        badge="Volunteer Capability Profile"
+        badgeIcon={Wrench}
+        title="Helper Profile & Skills"
+        description="Configure skills you can offer and your available hours to receive matched assistance invitations."
+      />
 
       {message && (
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">

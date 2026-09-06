@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -42,20 +43,12 @@ export const StaffDashboard = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-teal-700 to-emerald-800 text-white rounded-3xl p-6 sm:p-8 shadow-sm">
-        <div className="max-w-2xl space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-xs font-semibold backdrop-blur-xs">
-            <span>Barangay Staff Console • {metrics?.barangay_name || user?.barangay_details?.name}</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black">
-            Staff Operations Portal
-          </h1>
-          <p className="text-emerald-100 text-xs sm:text-sm">
-            Verify local residents, triage community moderation reports, and monitor assistance workflows.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        badge={`Barangay Staff Console • ${metrics?.barangay_name || user?.barangay_details?.name || 'South Poblacion'}`}
+        title="Staff Operations Portal"
+        description="Verify local residents, triage community moderation reports, and monitor assistance workflows."
+        theme="teal"
+      />
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

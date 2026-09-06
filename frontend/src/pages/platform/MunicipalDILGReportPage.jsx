@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Printer, Download, Calendar, ShieldCheck, Building2, TrendingUp, Users, CheckCircle2, MapPin, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';

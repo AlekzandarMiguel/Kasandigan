@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import {
   Bell, CheckCheck, Clock, ArrowRight, HeartHandshake,
@@ -96,38 +97,25 @@ export const NotificationsPage = () => {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              Personal Inbox
-            </span>
-            {unreadCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">
-                {unreadCount} Unread
-              </span>
-            )}
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-            <Bell className="w-6 h-6 text-emerald-600" />
-            Personal Activity Notifications
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Direct personal updates regarding your assistance tickets, volunteer assignments, ratings, and account status.
-          </p>
-        </div>
-
-        {unreadCount > 0 && (
-          <button
-            onClick={handleMarkAll}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors shrink-0"
-          >
-            <CheckCheck className="w-4 h-4" />
-            <span>Mark all read</span>
-          </button>
-        )}
-      </div>
+      <PageHeader
+        icon={Bell}
+        badge={`Personal Inbox • ${unreadCount > 0 ? `${unreadCount} Unread Updates` : 'All Caught Up'}`}
+        badgeIcon={Bell}
+        title="Personal Activity Notifications"
+        description="Direct personal updates regarding your assistance tickets, volunteer assignments, ratings, and account status."
+        theme="emerald"
+        actions={
+          unreadCount > 0 && (
+            <button
+              onClick={handleMarkAll}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-emerald-950 bg-white hover:bg-emerald-50 rounded-xl transition-all shadow-md cursor-pointer"
+            >
+              <CheckCheck className="w-4 h-4 text-emerald-700" />
+              <span>Mark all read</span>
+            </button>
+          )
+        }
+      />
 
       {/* Redirect Banner to Barangay Announcements */}
       <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-3 text-xs">

@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, CheckCircle, AlertTriangle, Building2, Wrench } from 'lucide-react';
 import api from '../../services/api';
@@ -29,15 +30,14 @@ export const PlatformReportsPage = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-          <BarChart3 className="w-6 h-6 text-indigo-600" />
-          Aggregated Platform Analytics & Reports
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          SaaS-wide key performance indicators, completion rates, and community assistance trends.
-        </p>
-      </div>
+      <PageHeader
+        icon={BarChart3}
+        badge="Central SaaS Intelligence"
+        badgeIcon={BarChart3}
+        title="Aggregated Platform Analytics & Reports"
+        description="SaaS-wide key performance indicators, completion rates, and community assistance trends across Maramag."
+        theme="indigo"
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

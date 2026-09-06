@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Flag, AlertTriangle, ShieldAlert, CheckCircle, Ban, MessageSquare, Clock, User, Check, X } from 'lucide-react';
 import api from '../../services/api';
@@ -60,30 +61,20 @@ export const BarangayReportsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              Barangay Administration
-            </span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-            <ShieldAlert className="w-6 h-6 text-rose-600" />
-            Resident Incident & Disciplinary Tribunal
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Adjudicate citizen dispute filings, enforce code of conduct sanctions, and issue official barangay account suspensions.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="px-3.5 py-1.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold flex items-center gap-1.5">
-            <AlertTriangle className="w-4 h-4 text-rose-600" />
+      <PageHeader
+        icon={ShieldAlert}
+        badge="Barangay Administration"
+        badgeIcon={ShieldAlert}
+        title="Resident Incident & Disciplinary Tribunal"
+        description="Adjudicate citizen dispute filings, enforce code of conduct sanctions, and issue official barangay account suspensions."
+        theme="slate"
+        actions={
+          <span className="px-3.5 py-2 bg-rose-500/20 border border-rose-400/40 text-rose-200 rounded-xl text-xs font-bold flex items-center gap-1.5 backdrop-blur-xs">
+            <AlertTriangle className="w-4 h-4 text-rose-400" />
             {reports.filter(r => r.status === 'SUBMITTED').length} Pending Adjudication
           </span>
-        </div>
-      </div>
+        }
+      />
 
       {/* Filter Bar */}
       <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between gap-3">

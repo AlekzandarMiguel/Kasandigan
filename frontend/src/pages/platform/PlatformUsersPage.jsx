@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Users, Search, Filter, ShieldCheck, Building2, UserX, UserCheck, Shield, MapPin, Phone, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
 import api from '../../services/api';
@@ -85,21 +86,14 @@ export const PlatformUsersPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-800">
-            SaaS Infrastructure
-          </span>
-        </div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-          <Users className="w-6 h-6 text-indigo-600" />
-          Barangay-Separated User Directory
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          Citizen and administrator directories partitioned strictly by Barangay tenant, with separate accounts control.
-        </p>
-      </div>
+      <PageHeader
+        icon={Users}
+        badge="SaaS Infrastructure & Multi-Tenant Security"
+        badgeIcon={Users}
+        title="Barangay-Separated User Directory"
+        description="Citizen and administrator directories partitioned strictly by Barangay tenant, with separate accounts control."
+        theme="indigo"
+      />
 
       {message && (
         <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-between animate-fade-in shadow-xs">

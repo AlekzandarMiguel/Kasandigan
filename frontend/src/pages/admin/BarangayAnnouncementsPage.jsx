@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Megaphone, Plus, Pin, Calendar, Globe, Users, ShieldCheck, Search, Trash2, Eye } from 'lucide-react';
 import api from '../../services/api';
@@ -56,30 +57,22 @@ export const BarangayAnnouncementsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              Barangay Administration
-            </span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-            <Megaphone className="w-6 h-6 text-emerald-600" />
-            Official Barangay Proclamations & Bulletins
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Publish official advisories, health drives, community assemblies, and disaster alerts to citizens.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all"
-        >
-          <Plus className="w-4 h-4" /> Broadcast Proclamation
-        </button>
-      </div>
+      <PageHeader
+        icon={Megaphone}
+        badge="Barangay Administration & Civic Governance"
+        badgeIcon={Megaphone}
+        title="Official Barangay Proclamations & Bulletins"
+        description="Publish official advisories, health drives, community assemblies, and disaster alerts to citizens."
+        theme="slate"
+        actions={
+          <button
+            onClick={() => setShowModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" /> Broadcast Proclamation
+          </button>
+        }
+      />
 
       {/* Search Bar */}
       <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">

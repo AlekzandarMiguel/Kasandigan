@@ -9,6 +9,7 @@ import api from '../../services/api';
 import StatusBadge from '../../components/StatusBadge';
 import EmptyState from '../../components/EmptyState';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import PageHeader from '../../components/PageHeader';
 
 export const ResidentDashboard = () => {
   const { user } = useAuth();
@@ -37,39 +38,31 @@ export const ResidentDashboard = () => {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white rounded-3xl p-6 sm:p-8 shadow-md relative overflow-hidden">
-        <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-xs font-semibold mb-3 backdrop-blur-xs">
-            <MapPin className="w-3.5 h-3.5" />
-            <span>{metrics?.barangay_name || user?.barangay_details?.name || 'Barangay'}</span>
-            {user?.zone && <span className="opacity-80">• {user.zone}</span>}
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black">
-            Kumusta, {user?.first_name}!
-          </h1>
-          <p className="text-emerald-100 text-sm mt-1">
-            Need a hand or ready to help a neighbor today? You are connected with verified community members in your barangay.
-          </p>
-
-          <div className="flex flex-wrap gap-3 mt-6">
+      <PageHeader
+        badge={`${metrics?.barangay_name || user?.barangay_details?.name || 'Barangay'} ${user?.zone ? `• ${user.zone}` : ''}`}
+        badgeIcon={MapPin}
+        title={`Kumusta, ${user?.first_name || 'Ka-Barangay'}!`}
+        description="Need a hand or ready to help a neighbor today? You are connected with verified community members in your barangay."
+        theme="emerald"
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
             <Link
               to="/requests/create"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-emerald-800 hover:bg-emerald-50 text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer"
             >
-              <PlusCircle className="w-4 h-4" />
+              <PlusCircle className="w-4 h-4 text-emerald-700" />
               <span>Request Assistance</span>
             </Link>
             <Link
               to="/skills"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-800/80 hover:bg-emerald-800 text-white border border-emerald-500/40 text-xs sm:text-sm font-semibold rounded-xl transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs sm:text-sm font-bold rounded-xl backdrop-blur-xs transition-all cursor-pointer"
             >
-              <Wrench className="w-4 h-4" />
+              <Wrench className="w-4 h-4 text-emerald-300" />
               <span>Offer Skills & Availability</span>
             </Link>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

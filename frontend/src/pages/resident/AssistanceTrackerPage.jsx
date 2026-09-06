@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle2, Star, Clock, User, HeartHandshake, ChevronRight, MessageSquare } from 'lucide-react';
@@ -42,15 +43,13 @@ export const AssistanceTrackerPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-          <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-          My Assistance Activity
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          Track active commitments, view completed community service, and review community ratings.
-        </p>
-      </div>
+      <PageHeader
+        icon={CheckCircle2}
+        badge="Citizen Bayanihan Ledger"
+        badgeIcon={CheckCircle2}
+        title="My Assistance Activity"
+        description="Track active commitments, view completed community service, and review neighbor commendations."
+      />
 
       {/* Active Commitments */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-4">

@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Megaphone, Pin, Clock, AlertTriangle, Search, Filter, Shield, Radio, CheckCircle } from 'lucide-react';
 import api from '../../services/api';
@@ -46,21 +47,13 @@ export const ResidentAnnouncementsPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-md relative overflow-hidden">
-        <div className="relative z-10 space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-xs font-bold backdrop-blur-xs">
-            <Megaphone className="w-3.5 h-3.5 text-emerald-300" />
-            <span>Official Community Bulletins & Public Notices</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black">
-            Barangay & MDRRMO Announcements
-          </h1>
-          <p className="text-emerald-100 text-xs sm:text-sm max-w-2xl">
-            Stay informed with verified advisories, disaster alerts, health schedules, and civic programs from your Barangay Council and the Municipality of Maramag.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        icon={Megaphone}
+        badge="Official Community Bulletins & Public Notices"
+        badgeIcon={Megaphone}
+        title="Barangay & MDRRMO Announcements"
+        description="Stay informed with verified advisories, disaster alerts, health schedules, and civic programs from your Barangay Council and the Municipality of Maramag."
+      />
 
       {/* Filter Bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">

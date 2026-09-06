@@ -58,6 +58,7 @@ import PlatformReportsPage from './pages/platform/PlatformReportsPage';
 import PlatformActivityLogsPage from './pages/platform/PlatformActivityLogsPage';
 import PlatformSettingsPage from './pages/platform/PlatformSettingsPage';
 import MunicipalDILGReportPage from './pages/platform/MunicipalDILGReportPage';
+import PlatformAnnouncementsPage from './pages/platform/PlatformAnnouncementsPage';
 
 // Loading Spinner
 import LoadingSpinner from './components/LoadingSpinner';
@@ -189,7 +190,7 @@ export function App() {
               }
             >
               <Route path="/platform/dashboard" element={<PlatformDashboard />} />
-              <Route path="/platform/announcements" element={<BarangayAnnouncementsPage />} />
+              <Route path="/platform/announcements" element={<PlatformAnnouncementsPage />} />
               <Route path="/platform/dilg-report" element={<MunicipalDILGReportPage />} />
               <Route path="/platform/barangays" element={<BarangaysManagementPage />} />
               <Route path="/platform/users" element={<PlatformUsersPage />} />

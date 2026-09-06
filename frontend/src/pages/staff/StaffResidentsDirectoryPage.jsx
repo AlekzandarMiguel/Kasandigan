@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import {
   Users, Search, Phone, Mail, MapPin, CheckCircle, Clock,
@@ -83,30 +84,19 @@ export const StaffResidentsDirectoryPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-teal-100 text-teal-800">
-              Barangay Front-Desk Desk
-            </span>
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              Maramag, Bukidnon
-            </span>
+      <PageHeader
+        icon={Users}
+        badge="Barangay Front-Desk • Maramag, Bukidnon"
+        badgeIcon={Users}
+        title="Resident Directory & ID Verification Desk"
+        description="Rapid residency proof auditing, CMU student verification, and contact lookup for walk-ins and phone calls."
+        theme="teal"
+        actions={
+          <div className="text-xs font-bold text-white bg-white/15 border border-white/20 px-3.5 py-2 rounded-xl backdrop-blur-xs">
+            Total Registered: <span className="text-teal-300 font-extrabold">{residents.length}</span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-            <Users className="w-6 h-6 text-teal-600" />
-            Resident Directory & ID Verification Desk
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Rapid residency proof auditing, CMU student verification, and contact lookup for walk-ins and phone calls.
-          </p>
-        </div>
-
-        <div className="text-xs font-bold text-slate-600 bg-slate-100 px-3.5 py-2 rounded-xl">
-          Total Registered: <span className="text-teal-700 font-extrabold">{residents.length}</span>
-        </div>
-      </div>
+        }
+      />
 
       {/* Search & Fast Filters */}
       <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center gap-3">

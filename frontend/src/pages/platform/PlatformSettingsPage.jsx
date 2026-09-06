@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState } from 'react';
 import { Settings, Shield, Server, Database, Save, CheckCircle, AlertTriangle, RefreshCw, Lock, Radio } from 'lucide-react';
 import api from '../../services/api';
@@ -24,21 +25,14 @@ export const PlatformSettingsPage = () => {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-800">
-            SaaS Infrastructure
-          </span>
-        </div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-          <Settings className="w-6 h-6 text-indigo-600" />
-          Multi-Tenant System & SaaS Settings
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          Global cloud settings, tenant provisioning rules, system health parameters, and data retention policies.
-        </p>
-      </div>
+      <PageHeader
+        icon={Settings}
+        badge="SaaS Infrastructure Config"
+        badgeIcon={Settings}
+        title="Multi-Tenant System & SaaS Settings"
+        description="Global cloud settings, tenant provisioning rules, system health parameters, and data retention policies."
+        theme="indigo"
+      />
 
       {saved && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center gap-3 text-sm font-semibold animate-fade-in">
@@ -48,43 +42,43 @@ export const PlatformSettingsPage = () => {
       )}
 
       {/* System Health Diagnostics */}
-      <div className="p-6 bg-slate-900 text-white rounded-3xl shadow-xl space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600/30 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
               <Server className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-white">SaaS Cloud Node Status</h3>
-              <p className="text-[11px] text-slate-400 font-mono">Cluster: ap-southeast-1 (Manila Edge)</p>
+              <h3 className="text-sm font-black text-slate-900">SaaS Cloud Node Status</h3>
+              <p className="text-[11px] text-slate-500 font-mono">Cluster: ap-southeast-1 (Manila Edge)</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             All Services Operational
           </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
-          <div className="p-3 bg-slate-800/50 rounded-xl border border-slate-800">
-            <div className="text-[10px] text-slate-400 font-bold uppercase">Database Engine</div>
-            <div className="text-sm font-black text-white mt-1">MySQL 8 / SQLite</div>
-            <div className="text-[10px] text-emerald-400 mt-0.5">Auto-partitioned</div>
+          <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1">
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Database Engine</div>
+            <div className="text-sm font-black text-slate-900 mt-1">MySQL 8 / SQLite</div>
+            <div className="text-[10px] text-emerald-600 font-semibold mt-0.5">Auto-partitioned</div>
           </div>
-          <div className="p-3 bg-slate-800/50 rounded-xl border border-slate-800">
-            <div className="text-[10px] text-slate-400 font-bold uppercase">Matching Latency</div>
-            <div className="text-sm font-black text-white mt-1">&lt; 15ms</div>
-            <div className="text-[10px] text-emerald-400 mt-0.5">Deterministic rule-engine</div>
+          <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1">
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Matching Latency</div>
+            <div className="text-sm font-black text-slate-900 mt-1">&lt; 15ms</div>
+            <div className="text-[10px] text-emerald-600 font-semibold mt-0.5">Deterministic rule-engine</div>
           </div>
-          <div className="p-3 bg-slate-800/50 rounded-xl border border-slate-800">
-            <div className="text-[10px] text-slate-400 font-bold uppercase">Tenant Isolation</div>
-            <div className="text-sm font-black text-emerald-400 mt-1">Strict Active</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">TenantMiddleware enforced</div>
+          <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1">
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Tenant Isolation</div>
+            <div className="text-sm font-black text-emerald-600 mt-1">Strict Active</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">TenantMiddleware enforced</div>
           </div>
-          <div className="p-3 bg-slate-800/50 rounded-xl border border-slate-800">
-            <div className="text-[10px] text-slate-400 font-bold uppercase">Data Privacy Act</div>
-            <div className="text-sm font-black text-indigo-300 mt-1">RA 10173</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Encrypted at rest</div>
+          <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1">
+            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Data Privacy Act</div>
+            <div className="text-sm font-black text-indigo-600 mt-1">RA 10173</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">Encrypted at rest</div>
           </div>
         </div>
       </div>

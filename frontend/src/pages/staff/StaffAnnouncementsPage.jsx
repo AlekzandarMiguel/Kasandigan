@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { Megaphone, Plus, Calendar, Clock, Pin, Trash2 } from 'lucide-react';
 import api from '../../services/api';

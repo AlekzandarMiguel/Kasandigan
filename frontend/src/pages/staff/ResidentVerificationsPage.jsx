@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { UserCheck, Search, Filter, Check, X, Shield, AlertTriangle } from 'lucide-react';
 import api from '../../services/api';
@@ -68,15 +69,14 @@ export const ResidentVerificationsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-          <UserCheck className="w-6 h-6 text-emerald-600" />
-          Resident Verification & Moderation
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500">
-          Verify resident accounts to allow participation in community assistance and skill exchanges.
-        </p>
-      </div>
+      <PageHeader
+        icon={UserCheck}
+        badge="Barangay Staff Operations"
+        badgeIcon={UserCheck}
+        title="Resident Verification & Moderation"
+        description="Verify resident accounts to allow participation in community assistance and skill exchanges."
+        theme="teal"
+      />
 
       {message && (
         <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">

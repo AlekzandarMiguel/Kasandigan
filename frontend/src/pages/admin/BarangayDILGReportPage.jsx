@@ -1,3 +1,4 @@
+import PageHeader from '../../components/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { FileText, Printer, Calendar, Building2, CheckCircle2, AlertTriangle, Users, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import api from '../../services/api';
@@ -38,61 +39,56 @@ export const BarangayDILGReportPage = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header & Controls (Hidden when printing) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-              DILG LGU Compliance
-            </span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2 mt-1">
-            <FileText className="w-6 h-6 text-emerald-600" />
-            Monthly Barangay Aid & Disaster Readiness Report
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Compliant with Department of the Interior and Local Government (DILG) community assistance metrics.
-          </p>
-        </div>
+      <div className="print:hidden">
+        <PageHeader
+          icon={FileText}
+          badge="DILG LGU Compliance"
+          badgeIcon={FileText}
+          title="Monthly Barangay Aid & Disaster Readiness Report"
+          description="Compliant with Department of the Interior and Local Government (DILG) community assistance metrics."
+          theme="slate"
+          actions={
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-xs">
+                <select
+                  value={month}
+                  onChange={(e) => setMonth(parseInt(e.target.value))}
+                  className="text-xs px-2.5 py-1.5 rounded-lg border-0 bg-transparent font-bold text-slate-700 focus:outline-hidden cursor-pointer"
+                >
+                  <option value="1">January</option>
+                  <option value="2">February</option>
+                  <option value="3">March</option>
+                  <option value="4">April</option>
+                  <option value="5">May</option>
+                  <option value="6">June</option>
+                  <option value="7">July</option>
+                  <option value="8">August</option>
+                  <option value="9">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200">
-            <select
-              value={month}
-              onChange={(e) => setMonth(parseInt(e.target.value))}
-              className="text-xs px-2.5 py-1.5 rounded-lg border-0 bg-transparent font-bold text-slate-700 focus:outline-hidden"
-            >
-              <option value="1">January</option>
-              <option value="2">February</option>
-              <option value="3">March</option>
-              <option value="4">April</option>
-              <option value="5">May</option>
-              <option value="6">June</option>
-              <option value="7">July</option>
-              <option value="8">August</option>
-              <option value="9">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
-            </select>
+                <select
+                  value={year}
+                  onChange={(e) => setYear(parseInt(e.target.value))}
+                  className="text-xs px-2.5 py-1.5 rounded-lg border-0 bg-transparent font-bold text-slate-700 focus:outline-hidden cursor-pointer"
+                >
+                  <option value="2025">2025</option>
+                  <option value="2026">2026</option>
+                  <option value="2027">2027</option>
+                </select>
+              </div>
 
-            <select
-              value={year}
-              onChange={(e) => setYear(parseInt(e.target.value))}
-              className="text-xs px-2.5 py-1.5 rounded-lg border-0 bg-transparent font-bold text-slate-700 focus:outline-hidden"
-            >
-              <option value="2025">2025</option>
-              <option value="2026">2026</option>
-              <option value="2027">2027</option>
-            </select>
-          </div>
-
-          <button
-            onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
-          >
-            <Printer className="w-4 h-4" /> Print / Save PDF
-          </button>
-        </div>
+              <button
+                onClick={handlePrint}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+              >
+                <Printer className="w-4 h-4" /> Print / Save PDF
+              </button>
+            </div>
+          }
+        />
       </div>
 
       {/* Printable Report Document */}
