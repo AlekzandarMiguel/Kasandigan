@@ -11,6 +11,7 @@ const BADGE_STYLES = {
   PENDING: 'bg-slate-100 text-slate-700 border-slate-200',
   MATCHED: 'bg-sky-50 text-sky-700 border-sky-200',
   ACCEPTED: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  EN_ROUTE: 'bg-amber-50 text-amber-800 border-amber-300 font-semibold animate-pulse',
   IN_PROGRESS: 'bg-blue-50 text-blue-700 border-blue-200 animate-pulse',
   COMPLETED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   CANCELLED: 'bg-gray-100 text-gray-600 border-gray-200',
@@ -35,6 +36,7 @@ const BADGE_STYLES = {
 
 const LABELS = {
   PENDING_VERIFICATION: 'Pending Verification',
+  EN_ROUTE: 'Helper En Route',
   IN_PROGRESS: 'In Progress',
   UNDER_REVIEW: 'Under Review',
 };
