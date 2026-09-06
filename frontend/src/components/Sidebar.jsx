@@ -29,6 +29,13 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           ],
         },
         {
+          title: 'Bulletins & Notices',
+          links: [
+            { to: '/platform/announcements', label: 'Municipal Bulletins', icon: Megaphone },
+            { to: '/notifications', label: 'Notifications', icon: Bell },
+          ],
+        },
+        {
           title: 'Analytics & Security',
           links: [
             { to: '/platform/reports', label: 'Platform Reports', icon: BarChart3 },
@@ -50,6 +57,13 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           ],
         },
         {
+          title: 'Bulletins & Notices',
+          links: [
+            { to: '/admin/announcements', label: 'Barangay Announcements', icon: Megaphone },
+            { to: '/notifications', label: 'Notifications', icon: Bell },
+          ],
+        },
+        {
           title: 'Assistance & Taxonomies',
           links: [
             { to: '/admin/requests', label: 'Assistance Requests', icon: HeartHandshake },
@@ -62,8 +76,6 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           links: [
             { to: '/admin/dilg-report', label: 'DILG Monthly Report', icon: Award },
             { to: '/admin/reports', label: 'Resident Reports', icon: Flag },
-            { to: '/admin/announcements', label: 'Announcements', icon: Megaphone },
-            { to: '/notifications', label: 'Notifications', icon: Bell },
             { to: '/admin/activity-logs', label: 'Activity Logs', icon: FileText },
             { to: '/admin/settings', label: 'Barangay Settings', icon: Settings },
           ],
@@ -82,12 +94,17 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           ],
         },
         {
+          title: 'Bulletins & Notices',
+          links: [
+            { to: '/staff/announcements', label: 'Barangay Notices', icon: Megaphone },
+            { to: '/notifications', label: 'Notifications', icon: Bell },
+          ],
+        },
+        {
           title: 'Community Moderation',
           links: [
             { to: '/staff/requests', label: 'Community Requests', icon: HeartHandshake },
             { to: '/staff/reports', label: 'Triage Reports', icon: Flag },
-            { to: '/staff/announcements', label: 'Barangay Notices', icon: Megaphone },
-            { to: '/notifications', label: 'Notifications', icon: Bell },
           ],
         },
       ];
@@ -99,10 +116,16 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
         title: 'Community Aid',
         links: [
           { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-          { to: '/announcements', label: 'Barangay Bulletins', icon: Megaphone },
           { to: '/requests', label: 'Assistance Requests', icon: HeartHandshake },
           { to: '/requests/create', label: 'Request Help', icon: PlusCircle },
           { to: '/assistance', label: 'My Assistance Activity', icon: CheckCircle },
+        ],
+      },
+      {
+        title: 'Bulletins & Notices',
+        links: [
+          { to: '/announcements', label: 'Barangay Bulletins', icon: Megaphone },
+          { to: '/notifications', label: 'Personal Notifications', icon: Bell },
         ],
       },
       {
@@ -111,7 +134,6 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
           { to: '/skills', label: 'Skills & Availability', icon: Wrench },
           { to: '/certificate', label: 'Volunteer Certificate', icon: Award },
           { to: '/resources', label: 'Community Resources', icon: Package },
-          { to: '/notifications', label: 'Notifications', icon: Bell },
           { to: '/settings', label: 'Profile & Settings', icon: Settings },
         ],
       },

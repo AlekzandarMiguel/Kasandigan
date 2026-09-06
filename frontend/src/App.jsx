@@ -189,6 +189,7 @@ export function App() {
               }
             >
               <Route path="/platform/dashboard" element={<PlatformDashboard />} />
+              <Route path="/platform/announcements" element={<BarangayAnnouncementsPage />} />
               <Route path="/platform/dilg-report" element={<MunicipalDILGReportPage />} />
               <Route path="/platform/barangays" element={<BarangaysManagementPage />} />
               <Route path="/platform/users" element={<PlatformUsersPage />} />
