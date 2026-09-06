@@ -4,6 +4,8 @@ import { Bell, LogOut, Menu, MapPin, HeartHandshake, Shield, Globe } from 'lucid
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import { useLanguage } from '../context/LanguageContext';
+import Logo from './Logo';
+import NotificationDropdown from './NotificationDropdown';
 
 export const LanguagePicker = () => {
   const { lang, changeLanguage } = useLanguage();
@@ -40,11 +42,12 @@ export const LanguagePicker = () => {
 export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
   const { user, logout, isResident } = useAuth();
   const { unreadCount } = useNotifications();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   // If public view (landing, about, how-it-works, etc.)
@@ -54,9 +57,7 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                <HeartHandshake className="w-6 h-6" />
-              </div>
+              <Logo size="md" className="group-hover:scale-105 transition-transform" />
               <div>
                 <span className="font-extrabold text-xl tracking-tight text-slate-900 flex items-center gap-1.5">
                   Kasandigan
@@ -64,7 +65,9 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
                     SaaS
                   </span>
                 </span>
-                <p className="text-[11px] text-slate-500 font-medium hidden sm:block">A community you can rely on</p>
+                <p className="text-[11px] text-slate-500 font-medium hidden sm:block">
+                  {t('brand_tagline', 'A community you can rely on')}
+                </p>
               </div>
             </Link>
 
@@ -74,13 +77,13 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
                 to="/login"
                 className="text-sm font-semibold text-slate-700 hover:text-emerald-600 px-3 py-2 transition-colors"
               >
-                Sign In
+                {t('btn_sign_in', 'Sign In')}
               </Link>
               <Link
                 to="/register"
                 className="text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl shadow-sm transition-colors"
               >
-                Get Started
+                {t('btn_get_started', 'Get Started')}
               </Link>
             </div>
           </div>
@@ -117,7 +120,7 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
             ) : (
               <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
                 <Shield className="w-4 h-4 text-indigo-600" />
-                <span>LGU Maramag Municipal Command Center</span>
+                <span>{t('maramag_command', 'LGU Maramag Municipal Command Center')}</span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 hidden sm:inline">
                   Bukidnon
                 </span>
@@ -128,18 +131,7 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
           {/* Right: Notifications & Quick Profile */}
           <div className="flex items-center gap-3">
             <LanguagePicker />
-            <Link
-              to="/notifications"
-              className="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
-              title="Notifications"
-            >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center animate-bounce">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </Link>
+            <NotificationDropdown />
 
             <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200">
               <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs border border-emerald-200">
@@ -150,14 +142,14 @@ export const Navbar = ({ onToggleMobileSidebar, isPublic = false }) => {
                   {user.full_name}
                 </div>
                 <div className="text-[10px] text-slate-400 capitalize">
-                  {user.role?.toLowerCase().replace(/_/g, ' ')}
+                  {user?.role ? t(`role_${user.role.toLowerCase()}`, user.role.toLowerCase().replace(/_/g, ' ')) : ''}
                 </div>
               </div>
 
               <button
                 onClick={handleLogout}
-                title="Sign out"
-                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors ml-1"
+                title={t('btn_sign_out', 'Sign out')}
+                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors ml-1 cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
               </button>

@@ -3,6 +3,7 @@ import { Outlet, NavLink } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import EmergencyAlertBanner from '../components/EmergencyAlertBanner';
+import SystemFooter from '../components/SystemFooter';
 import { LayoutDashboard, HeartHandshake, CheckCircle, Package, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,8 +12,8 @@ export const ResidentLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex pb-16 md:pb-0">
-      {/* Sidebar docked permanently to the left */}
+    <div className="min-h-screen bg-slate-50 flex flex-col pb-16 md:pb-10">
+      {/* Sidebar docked permanently to the left, ending above footer */}
       <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
       {/* Main Content Area filling remaining space to the right */}
@@ -39,6 +40,9 @@ export const ResidentLayout = () => {
           </div>
         </main>
       </div>
+
+      {/* Full-width fixed bottom footer on desktop occupying ALL bottom space */}
+      <SystemFooter className="hidden md:flex" />
 
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 md:hidden flex justify-around py-2 px-1 shadow-md">

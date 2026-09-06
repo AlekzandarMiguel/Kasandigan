@@ -7,40 +7,43 @@ import {
   PlusCircle, BarChart3, ShieldCheck, Award
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import Logo from './Logo';
 
 export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const getNavSections = () => {
     if (user?.role === 'PLATFORM_ADMIN') {
       return [
         {
-          title: 'SaaS Administration',
+          title: t('sec_saas_admin', 'SaaS Administration'),
           links: [
-            { to: '/platform/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-            { to: '/platform/barangays', label: 'Barangay Tenants', icon: Shield },
-            { to: '/platform/users', label: 'User Directory', icon: Users },
+            { to: '/platform/dashboard', label: t('nav_dashboard', 'Dashboard'), icon: LayoutDashboard },
+            { to: '/platform/barangays', label: t('nav_barangay_tenants', 'Barangay Tenants'), icon: Shield },
+            { to: '/platform/users', label: t('nav_user_directory', 'User Directory'), icon: Users },
           ],
         },
         {
-          title: 'Bulletins & Notices',
+          title: t('sec_bulletins_notices', 'Bulletins & Notices'),
           links: [
-            { to: '/platform/announcements', label: 'Municipal Bulletins', icon: Megaphone },
-            { to: '/notifications', label: 'Notifications', icon: Bell },
+            { to: '/platform/announcements', label: t('nav_municipal_bulletins', 'Municipal Bulletins'), icon: Megaphone },
+            { to: '/notifications', label: t('nav_notifications', 'Notifications'), icon: Bell },
           ],
         },
         {
-          title: 'Analytics & Security',
+          title: t('sec_analytics_security', 'Analytics & Security'),
           links: [
-            { to: '/platform/reports', label: 'Platform Reports', icon: BarChart3 },
-            { to: '/platform/activity-logs', label: 'System Audit Logs', icon: FileText },
-            { to: '/platform/settings', label: 'System Settings', icon: Settings },
+            { to: '/platform/reports', label: t('nav_platform_reports', 'Platform Reports'), icon: BarChart3 },
+            { to: '/platform/activity-logs', label: t('nav_system_audit_logs', 'System Audit Logs'), icon: FileText },
+            { to: '/platform/settings', label: t('nav_system_settings', 'System Settings'), icon: Settings },
           ],
         },
       ];
@@ -49,35 +52,35 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
     if (user?.role === 'BARANGAY_ADMIN') {
       return [
         {
-          title: 'Tenant Overview',
+          title: t('sec_tenant_overview', 'Tenant Overview'),
           links: [
-            { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-            { to: '/admin/residents', label: 'Resident Directory', icon: Users },
-            { to: '/admin/staff', label: 'Staff Management', icon: UserCheck },
+            { to: '/admin/dashboard', label: t('nav_dashboard', 'Dashboard'), icon: LayoutDashboard },
+            { to: '/admin/residents', label: t('nav_resident_directory', 'Resident Directory'), icon: Users },
+            { to: '/admin/staff', label: t('nav_staff_management', 'Staff Management'), icon: UserCheck },
           ],
         },
         {
-          title: 'Bulletins & Notices',
+          title: t('sec_bulletins_notices', 'Bulletins & Notices'),
           links: [
-            { to: '/admin/announcements', label: 'Barangay Announcements', icon: Megaphone },
-            { to: '/notifications', label: 'Notifications', icon: Bell },
+            { to: '/admin/announcements', label: t('nav_barangay_announcements', 'Barangay Announcements'), icon: Megaphone },
+            { to: '/notifications', label: t('nav_notifications', 'Notifications'), icon: Bell },
           ],
         },
         {
-          title: 'Assistance & Taxonomies',
+          title: t('sec_assistance_taxonomies', 'Assistance & Taxonomies'),
           links: [
-            { to: '/admin/requests', label: 'Assistance Requests', icon: HeartHandshake },
-            { to: '/admin/skills', label: 'Skills Taxonomy', icon: Wrench },
-            { to: '/admin/categories', label: 'Assistance Categories', icon: Layers },
+            { to: '/admin/requests', label: t('nav_assistance_requests', 'Assistance Requests'), icon: HeartHandshake },
+            { to: '/admin/skills', label: t('nav_skills_taxonomy', 'Skills Taxonomy'), icon: Wrench },
+            { to: '/admin/categories', label: t('nav_assistance_categories', 'Assistance Categories'), icon: Layers },
           ],
         },
         {
-          title: 'Safety & Governance',
+          title: t('sec_safety_governance', 'Safety & Governance'),
           links: [
-            { to: '/admin/dilg-report', label: 'DILG Monthly Report', icon: Award },
-            { to: '/admin/reports', label: 'Resident Reports', icon: Flag },
-            { to: '/admin/activity-logs', label: 'Activity Logs', icon: FileText },
-            { to: '/admin/settings', label: 'Barangay Settings', icon: Settings },
+            { to: '/admin/dilg-report', label: t('nav_dilg_report', 'DILG Monthly Report'), icon: Award },
+            { to: '/admin/reports', label: t('nav_resident_reports', 'Resident Reports'), icon: Flag },
+            { to: '/admin/activity-logs', label: t('nav_activity_logs', 'Activity Logs'), icon: FileText },
+            { to: '/admin/settings', label: t('nav_barangay_settings', 'Barangay Settings'), icon: Settings },
           ],
         },
       ];
@@ -86,25 +89,25 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
     if (user?.role === 'BARANGAY_STAFF') {
       return [
         {
-          title: 'Staff Operations',
+          title: t('sec_staff_operations', 'Staff Operations'),
           links: [
-            { to: '/staff/dashboard', label: 'Staff Dashboard', icon: LayoutDashboard },
-            { to: '/staff/verifications', label: 'Resident Verifications', icon: UserCheck },
-            { to: '/staff/residents', label: 'Resident Directory', icon: Users },
+            { to: '/staff/dashboard', label: t('nav_staff_dashboard', 'Staff Dashboard'), icon: LayoutDashboard },
+            { to: '/staff/verifications', label: t('nav_resident_verifications', 'Resident Verifications'), icon: UserCheck },
+            { to: '/staff/residents', label: t('nav_resident_directory', 'Resident Directory'), icon: Users },
           ],
         },
         {
-          title: 'Bulletins & Notices',
+          title: t('sec_bulletins_notices', 'Bulletins & Notices'),
           links: [
-            { to: '/staff/announcements', label: 'Barangay Notices', icon: Megaphone },
-            { to: '/notifications', label: 'Notifications', icon: Bell },
+            { to: '/staff/announcements', label: t('nav_barangay_notices', 'Barangay Notices'), icon: Megaphone },
+            { to: '/notifications', label: t('nav_notifications', 'Notifications'), icon: Bell },
           ],
         },
         {
-          title: 'Community Moderation',
+          title: t('sec_community_moderation', 'Community Moderation'),
           links: [
-            { to: '/staff/requests', label: 'Community Requests', icon: HeartHandshake },
-            { to: '/staff/reports', label: 'Triage Reports', icon: Flag },
+            { to: '/staff/requests', label: t('nav_community_requests', 'Community Requests'), icon: HeartHandshake },
+            { to: '/staff/reports', label: t('nav_triage_reports', 'Triage Reports'), icon: Flag },
           ],
         },
       ];
@@ -113,28 +116,28 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
     // Resident
     return [
       {
-        title: 'Community Aid',
+        title: t('sec_community_aid', 'Community Aid'),
         links: [
-          { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-          { to: '/requests', label: 'Assistance Requests', icon: HeartHandshake },
-          { to: '/requests/create', label: 'Request Help', icon: PlusCircle },
-          { to: '/assistance', label: 'My Assistance Activity', icon: CheckCircle },
+          { to: '/dashboard', label: t('nav_dashboard', 'Dashboard'), icon: LayoutDashboard },
+          { to: '/requests', label: t('nav_assistance_requests', 'Assistance Requests'), icon: HeartHandshake },
+          { to: '/requests/create', label: t('nav_request_help', 'Request Help'), icon: PlusCircle },
+          { to: '/assistance', label: t('nav_my_assistance', 'My Assistance Activity'), icon: CheckCircle },
         ],
       },
       {
-        title: 'Bulletins & Notices',
+        title: t('sec_bulletins_notices', 'Bulletins & Notices'),
         links: [
-          { to: '/announcements', label: 'Barangay Bulletins', icon: Megaphone },
-          { to: '/notifications', label: 'Personal Notifications', icon: Bell },
+          { to: '/announcements', label: t('nav_barangay_bulletins', 'Barangay Bulletins'), icon: Megaphone },
+          { to: '/notifications', label: t('nav_personal_notifications', 'Personal Notifications'), icon: Bell },
         ],
       },
       {
-        title: 'Helper & Resources',
+        title: t('sec_helper_resources', 'Helper & Resources'),
         links: [
-          { to: '/skills', label: 'Skills & Availability', icon: Wrench },
-          { to: '/certificate', label: 'Volunteer Certificate', icon: Award },
-          { to: '/resources', label: 'Community Resources', icon: Package },
-          { to: '/settings', label: 'Profile & Settings', icon: Settings },
+          { to: '/skills', label: t('nav_skills_availability', 'Skills & Availability'), icon: Wrench },
+          { to: '/certificate', label: t('nav_volunteer_certificate', 'Volunteer Certificate'), icon: Award },
+          { to: '/resources', label: t('nav_community_resources', 'Community Resources'), icon: Package },
+          { to: '/settings', label: t('nav_profile_settings', 'Profile & Settings'), icon: Settings },
         ],
       },
     ];
@@ -148,27 +151,25 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       <div className="p-5 border-b border-slate-100 flex items-center justify-between">
         <Link
           to={user?.role === 'PLATFORM_ADMIN' ? '/platform/dashboard' : user?.role === 'BARANGAY_ADMIN' ? '/admin/dashboard' : user?.role === 'BARANGAY_STAFF' ? '/staff/dashboard' : '/dashboard'}
-          className="flex items-center gap-3 group"
+          className="flex items-center gap-3 group transition-transform active:scale-95 duration-150"
           onClick={() => setMobileOpen && setMobileOpen(false)}
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform shrink-0">
-            <HeartHandshake className="w-6 h-6" />
-          </div>
+          <Logo size="md" className="transition-transform duration-300 ease-out group-hover:scale-108 group-hover:-rotate-2" />
           <div>
             <div className="flex items-center gap-1.5 font-extrabold text-lg text-slate-900 leading-none">
-              Kasandigan
-              <span className="text-[9px] uppercase font-black tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+              <span className="transition-colors duration-200 group-hover:text-emerald-700">Kasandigan</span>
+              <span className="text-[9px] uppercase font-black tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 transition-colors duration-200 group-hover:bg-emerald-200 group-hover:text-emerald-950">
                 SaaS
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">A community you can rely on</p>
+            <p className="text-[10px] text-slate-400 font-medium mt-0.5">{t('brand_tagline', 'A community you can rely on')}</p>
           </div>
         </Link>
 
         {setMobileOpen && (
           <button
             onClick={() => setMobileOpen(false)}
-            className="md:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"
+            className="md:hidden p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-all active:scale-90"
           >
             <X className="w-5 h-5" />
           </button>
@@ -177,18 +178,18 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
 
       {/* Tenant Indicator if assigned */}
       {user?.barangay_details ? (
-        <div className="px-5 py-3 bg-slate-50 border-b border-slate-100">
+        <div className="group px-5 py-3 bg-slate-50 hover:bg-slate-100/70 border-b border-slate-100 transition-colors">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-            <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span className="truncate">{user.barangay_details.name}</span>
+            <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0 transition-transform duration-200 group-hover:scale-115 group-hover:text-emerald-700" />
+            <span className="truncate group-hover:text-slate-900 transition-colors">{user.barangay_details.name}</span>
           </div>
           {user.zone && (
             <div className="text-[11px] text-slate-400 pl-5.5 font-medium">{user.zone}</div>
           )}
         </div>
       ) : (
-        <div className="px-5 py-2.5 bg-indigo-50/50 border-b border-indigo-100/60 flex items-center gap-2 text-[11px] font-bold text-indigo-900">
-          <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+        <div className="group px-5 py-2.5 bg-indigo-50/50 hover:bg-indigo-50/80 border-b border-indigo-100/60 flex items-center gap-2 text-[11px] font-bold text-indigo-900 transition-colors">
+          <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 shrink-0 transition-transform duration-200 group-hover:scale-115" />
           <span>Multi-Tenant Platform Control</span>
         </div>
       )}
@@ -208,15 +209,25 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
                   to={link.to}
                   onClick={() => setMobileOpen && setMobileOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    `group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 ease-out active:scale-[0.98] ${
                       isActive
-                        ? 'bg-emerald-50 text-emerald-700 font-bold shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        ? 'bg-emerald-50 text-emerald-700 font-bold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:translate-x-1'
                     }`
                   }
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span className="truncate">{link.label}</span>
+                  {({ isActive }) => (
+                    <>
+                      <Icon
+                        className={`w-4 h-4 shrink-0 transition-all duration-150 ease-out ${
+                          isActive
+                            ? 'text-emerald-600'
+                            : 'text-slate-400 group-hover:text-slate-700 group-hover:scale-110'
+                        }`}
+                      />
+                      <span className="truncate">{link.label}</span>
+                    </>
+                  )}
                 </NavLink>
               );
             })}
@@ -224,28 +235,14 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
         ))}
       </div>
 
-      {/* User Footer Profile & Logout */}
-      <div className="p-3 border-t border-slate-100 space-y-2">
-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-100">
-          <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs border border-emerald-200 shrink-0">
-            {user?.first_name?.[0] || 'U'}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-xs font-bold text-slate-900 truncate">
-              {user?.full_name}
-            </div>
-            <div className="text-[10px] text-slate-400 capitalize truncate">
-              {user?.role?.toLowerCase().replace(/_/g, ' ')}
-            </div>
-          </div>
-        </div>
-
+      {/* Logout Action aligned with sidebar elements */}
+      <div className="p-3 border-t border-slate-100">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+          className="group w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:text-rose-600 hover:bg-rose-50 hover:translate-x-1 active:scale-[0.98] transition-all duration-150 ease-out cursor-pointer"
         >
-          <LogOut className="w-4 h-4 shrink-0" />
-          <span>Sign Out</span>
+          <LogOut className="w-4 h-4 shrink-0 text-slate-400 group-hover:text-rose-600 group-hover:-translate-x-0.5 transition-all duration-150 ease-out" />
+          <span className="truncate">{t('btn_sign_out', 'Sign Out')}</span>
         </button>
       </div>
     </div>
@@ -253,8 +250,8 @@ export const Sidebar = ({ mobileOpen, setMobileOpen }) => {
 
   return (
     <>
-      {/* Desktop Fixed Left Sidebar */}
-      <aside className="fixed inset-y-0 left-0 w-64 z-40 hidden md:block">
+      {/* Desktop Fixed Left Sidebar - Docked above the full-width bottom footer */}
+      <aside className="fixed top-0 bottom-10 left-0 w-64 z-30 hidden md:block">
         {sidebarContent}
       </aside>
 

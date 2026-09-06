@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import Logo from '../components/Logo';
 import { HeartHandshake } from 'lucide-react';
 
 export const PublicLayout = () => {
@@ -14,10 +15,8 @@ export const PublicLayout = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="md:col-span-2 space-y-3">
-              <div className="flex items-center gap-2 text-white font-extrabold text-lg">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white">
-                  <HeartHandshake className="w-5 h-5" />
-                </div>
+              <div className="flex items-center gap-2.5 text-white font-extrabold text-lg">
+                <Logo size="sm" />
                 <span>Kasandigan</span>
               </div>
               <p className="text-sm text-slate-400 italic font-medium">
