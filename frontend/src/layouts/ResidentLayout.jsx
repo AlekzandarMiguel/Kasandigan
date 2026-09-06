@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
@@ -7,38 +7,44 @@ import { useAuth } from '../context/AuthContext';
 
 export const ResidentLayout = () => {
   const { user } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 pb-16 md:pb-0">
-      <Navbar />
+    <div className="min-h-screen bg-slate-50 flex pb-16 md:pb-0">
+      {/* Sidebar docked permanently to the left */}
+      <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
-      {/* Verification Banner if pending */}
-      {user?.verification_status === 'PENDING_VERIFICATION' && (
-        <div className="bg-amber-500 text-white px-4 py-2 text-xs sm:text-sm font-medium text-center shadow-xs">
-          Your account is currently <span className="font-bold underline">Pending Barangay Verification</span>. Once verified by your barangay hall staff, you can request and accept assistance.
-        </div>
-      )}
+      {/* Main Content Area filling remaining space to the right */}
+      <div className="flex-1 flex flex-col min-w-0 md:pl-64">
+        <Navbar onToggleMobileSidebar={() => setMobileOpen(!mobileOpen)} />
 
-      {user?.verification_status === 'REJECTED' && (
-        <div className="bg-rose-600 text-white px-4 py-2 text-xs sm:text-sm font-medium text-center">
-          Your resident account verification was rejected. Reason: {user.verification_notes || 'Please visit your barangay hall.'}
-        </div>
-      )}
+        {/* Verification Banner if pending */}
+        {user?.verification_status === 'PENDING_VERIFICATION' && (
+          <div className="bg-amber-500 text-white px-4 py-2 text-xs sm:text-sm font-medium text-center shadow-xs">
+            Your account is currently <span className="font-bold underline">Pending Barangay Verification</span>. Once verified by your barangay hall staff, you can participate in all assistance transactions.
+          </div>
+        )}
 
-      <div className="flex-1 flex max-w-7xl w-full mx-auto">
-        <Sidebar />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-y-auto">
-          <Outlet />
+        {user?.verification_status === 'REJECTED' && (
+          <div className="bg-rose-600 text-white px-4 py-2 text-xs sm:text-sm font-medium text-center">
+            Your resident account verification was rejected. Reason: {user.verification_notes || 'Please visit your barangay hall.'}
+          </div>
+        )}
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
+          <div className="max-w-7xl mx-auto w-full">
+            <Outlet />
+          </div>
         </main>
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 md:hidden flex justify-around py-2 px-1">
+      <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 md:hidden flex justify-around py-2 px-1 shadow-md">
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
             `flex flex-col items-center text-[10px] font-medium px-2 py-1 ${
-              isActive ? 'text-emerald-600' : 'text-slate-500'
+              isActive ? 'text-emerald-600 font-bold' : 'text-slate-500'
             }`
           }
         >
@@ -49,7 +55,7 @@ export const ResidentLayout = () => {
           to="/requests"
           className={({ isActive }) =>
             `flex flex-col items-center text-[10px] font-medium px-2 py-1 ${
-              isActive ? 'text-emerald-600' : 'text-slate-500'
+              isActive ? 'text-emerald-600 font-bold' : 'text-slate-500'
             }`
           }
         >
@@ -60,7 +66,7 @@ export const ResidentLayout = () => {
           to="/assistance"
           className={({ isActive }) =>
             `flex flex-col items-center text-[10px] font-medium px-2 py-1 ${
-              isActive ? 'text-emerald-600' : 'text-slate-500'
+              isActive ? 'text-emerald-600 font-bold' : 'text-slate-500'
             }`
           }
         >
@@ -71,7 +77,7 @@ export const ResidentLayout = () => {
           to="/resources"
           className={({ isActive }) =>
             `flex flex-col items-center text-[10px] font-medium px-2 py-1 ${
-              isActive ? 'text-emerald-600' : 'text-slate-500'
+              isActive ? 'text-emerald-600 font-bold' : 'text-slate-500'
             }`
           }
         >
@@ -82,7 +88,7 @@ export const ResidentLayout = () => {
           to="/settings"
           className={({ isActive }) =>
             `flex flex-col items-center text-[10px] font-medium px-2 py-1 ${
-              isActive ? 'text-emerald-600' : 'text-slate-500'
+              isActive ? 'text-emerald-600 font-bold' : 'text-slate-500'
             }`
           }
         >

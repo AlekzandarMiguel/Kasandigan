@@ -1,12 +1,12 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { HeartHandshake, Shield, Users, Sparkles } from 'lucide-react';
+import { HeartHandshake } from 'lucide-react';
 
 export const PublicLayout = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <Navbar />
+      <Navbar isPublic={true} />
       <main className="flex-1">
         <Outlet />
       </main>
